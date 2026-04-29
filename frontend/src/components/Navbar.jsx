@@ -1,0 +1,79 @@
+import { Link, useNavigate } from 'react-router-dom'
+import useAuthStore from '../store/authStore'
+import api from '../services/api'
+
+const Navbar = () => {
+  const { user, token, logout } = useAuthStore()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/logout')
+    } catch (err) {
+      console.error(err)
+    } finally {
+      logout()
+      navigate('/')
+    }
+  }
+
+  return (
+    <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        
+        <Link to="/" className="text-xl font-bold text-orange-500">
+          🍽️ SmartResto
+        </Link>
+
+        <div className="flex items-center gap-6">
+          <Link to="/" className="text-sm text-gray-600 hover:text-orange-500 transition">
+            Home
+          </Link>
+          <Link to="/menu" className="text-sm text-gray-600 hover:text-orange-500 transition">
+            Menu
+          </Link>
+
+          {token ? (
+            <div className="flex items-center gap-4">
+              {user?.role === 'admin' && (
+                <Link to="/admin" className="text-sm text-purple-600 font-medium hover:underline">
+                  Admin
+                </Link>
+              )}
+              {user?.role === 'staff' && (
+                <Link to="/staff" className="text-sm text-blue-600 font-medium hover:underline">
+                  Staff
+                </Link>
+              )}
+              <span className="text-sm text-gray-500">Hi, {user?.name}</span>
+              <button
+                onClick={handleLogout}
+                className="text-sm bg-red-50 text-red-500 px-4 py-1.5 rounded-lg hover:bg-red-100 transition"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                className="text-sm text-gray-600 hover:text-orange-500 transition"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="text-sm bg-orange-500 text-white px-4 py-1.5 rounded-lg hover:bg-orange-600 transition"
+              >
+                Register
+              </Link>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </nav>
+  )
+}
+
+export default Navbar
