@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Menu from './pages/Menu'
+import Cart from './pages/Cart'
 
 function App() {
   return (
@@ -17,12 +18,22 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/menu" element={<Menu />} />
 
-        {/* Customer Protected Routes */}
+        {/* Cart - needs login */}
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Orders */}
         <Route
           path="/orders"
           element={
-            <ProtectedRoute roles={['customer']}>
-              <div className="p-8 text-center text-gray-500">Orders page coming soon...</div>
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <div className="p-8 text-center text-gray-500">Orders page coming in Week 4...</div>
             </ProtectedRoute>
           }
         />
