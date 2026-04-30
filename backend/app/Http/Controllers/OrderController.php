@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderStatusUpdated;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
@@ -13,12 +14,12 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'items'              => 'required|array|min:1',
+            'items'                => 'required|array|min:1',
             'items.*.menu_item_id' => 'required|exists:menu_items,id',
-            'items.*.quantity'   => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric',
-            'total_amount'       => 'required|numeric',
-            'notes'              => 'nullable|string',
+            'items.*.quantity'     => 'required|integer|min:1',
+            'items.*.unit_price'   => 'required|numeric',
+            'total_amount'         => 'required|numeric',
+            'notes'                => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -72,5 +73,24 @@ class OrderController extends Controller
             ->findOrFail($id);
 
         return response()->json($order);
+    }
+
+    // Update order status (staff only)
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:placed,confirmed,preparing,ready,served,cancelled',
+        ]);
+
+        $order = Order::findOrFail($id);
+        $order->update(['status' => $request->status]);
+
+        // Broadcast real-time update
+        broadcast(new OrderStatusUpdated($order));
+
+        return response()->json([
+            'message' => 'Order status updated!',
+            'order'   => $order,
+        ]);
     }
 }
