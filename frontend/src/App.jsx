@@ -9,6 +9,8 @@ import Cart from './pages/Cart'
 import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail'
 import QrScan from './pages/QrScan'
+import QueuePage from './pages/QueuePage'
+import StaffPanel from './pages/StaffPanel'
 
 function App() {
   return (
@@ -22,7 +24,7 @@ function App() {
         <Route path="/menu" element={<Menu />} />
         <Route path="/table/:tableNumber" element={<QrScan />} />
 
-        {/* Protected Customer Routes */}
+        {/* Customer Routes */}
         <Route path="/cart" element={
           <ProtectedRoute roles={['customer', 'staff', 'admin']}>
             <Cart />
@@ -38,11 +40,16 @@ function App() {
             <OrderDetail />
           </ProtectedRoute>
         } />
+        <Route path="/queue" element={
+          <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+            <QueuePage />
+          </ProtectedRoute>
+        } />
 
         {/* Staff Routes */}
         <Route path="/staff" element={
           <ProtectedRoute roles={['staff', 'admin']}>
-            <div className="p-8 text-center text-gray-500">Staff panel coming in Week 5...</div>
+            <StaffPanel />
           </ProtectedRoute>
         } />
 
