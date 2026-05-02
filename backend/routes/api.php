@@ -7,6 +7,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\QrController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\AdminController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -26,25 +27,55 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me',      [AuthController::class, 'me']);
 
     // Orders
-    Route::get('/orders',               [OrderController::class, 'index']);
-    Route::post('/orders',              [OrderController::class, 'store']);
-    Route::get('/orders/{id}',          [OrderController::class, 'show']);
-    Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus']);
+    Route::get('/orders',                  [OrderController::class, 'index']);
+    Route::post('/orders',                 [OrderController::class, 'store']);
+    Route::get('/orders/{id}',             [OrderController::class, 'show']);
+    Route::patch('/orders/{id}/status',    [OrderController::class, 'updateStatus']);
 
     // Queue
-    Route::get('/queue',           [QueueController::class, 'index']);
-    Route::post('/queue/join',     [QueueController::class, 'join']);
-    Route::get('/queue/my-status', [QueueController::class, 'myStatus']);
-    Route::post('/queue/leave',    [QueueController::class, 'leave']);
+    Route::get('/queue',             [QueueController::class, 'index']);
+    Route::post('/queue/join',       [QueueController::class, 'join']);
+    Route::get('/queue/my-status',   [QueueController::class, 'myStatus']);
+    Route::post('/queue/leave',      [QueueController::class, 'leave']);
 
     // Staff only
     Route::middleware('role:staff,admin')->group(function () {
-        Route::post('/queue/call-next',      [QueueController::class, 'callNext']);
-        Route::patch('/queue/{id}/seated',   [QueueController::class, 'markSeated']);
-        Route::delete('/queue/{id}',         [QueueController::class, 'remove']);
-        Route::get('/staff/orders',          [StaffController::class, 'orders']);
+        Route::post('/queue/call-next',           [QueueController::class, 'callNext']);
+        Route::patch('/queue/{id}/seated',        [QueueController::class, 'markSeated']);
+        Route::delete('/queue/{id}',              [QueueController::class, 'remove']);
+        Route::get('/staff/orders',               [StaffController::class, 'orders']);
         Route::patch('/staff/orders/{id}/status', [StaffController::class, 'updateOrderStatus']);
-        Route::get('/staff/tables',          [StaffController::class, 'tables']);
+        Route::get('/staff/tables',               [StaffController::class, 'tables']);
         Route::patch('/staff/tables/{id}/status', [StaffController::class, 'updateTableStatus']);
+    });
+
+    // Admin only
+    Route::middleware('role:admin')->group(function () {
+        // Dashboard
+        Route::get('/admin/stats',            [AdminController::class, 'stats']);
+        Route::get('/admin/analytics/revenue',[AdminController::class, 'revenueAnalytics']);
+        Route::get('/admin/analytics/items',  [AdminController::class, 'topItems']);
+        Route::get('/admin/analytics/orders', [AdminController::class, 'orderStats']);
+
+        // Users
+        Route::get('/admin/users',            [AdminController::class, 'users']);
+        Route::patch('/admin/users/{id}',     [AdminController::class, 'updateUser']);
+
+        // Menu
+        Route::get('/admin/menu/items',       [AdminController::class, 'menuItems']);
+        Route::post('/admin/menu/items',      [AdminController::class, 'createMenuItem']);
+        Route::patch('/admin/menu/items/{id}',[AdminController::class, 'updateMenuItem']);
+        Route::delete('/admin/menu/items/{id}',[AdminController::class, 'deleteMenuItem']);
+
+        // Categories
+        Route::get('/admin/categories',       [AdminController::class, 'categories']);
+        Route::post('/admin/categories',      [AdminController::class, 'createCategory']);
+        Route::delete('/admin/categories/{id}',[AdminController::class, 'deleteCategory']);
+
+        // Tables
+        Route::get('/admin/tables',           [AdminController::class, 'tables']);
+        Route::post('/admin/tables',          [AdminController::class, 'createTable']);
+        Route::patch('/admin/tables/{id}',    [AdminController::class, 'updateTable']);
+        Route::delete('/admin/tables/{id}',   [AdminController::class, 'deleteTable']);
     });
 });

@@ -11,20 +11,19 @@ import OrderDetail from './pages/OrderDetail'
 import QrScan from './pages/QrScan'
 import QueuePage from './pages/QueuePage'
 import StaffPanel from './pages/StaffPanel'
+import AdminPanel from './pages/AdminPanel'
 
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/table/:tableNumber" element={<QrScan />} />
 
-        {/* Customer Routes */}
         <Route path="/cart" element={
           <ProtectedRoute roles={['customer', 'staff', 'admin']}>
             <Cart />
@@ -45,22 +44,17 @@ function App() {
             <QueuePage />
           </ProtectedRoute>
         } />
-
-        {/* Staff Routes */}
         <Route path="/staff" element={
           <ProtectedRoute roles={['staff', 'admin']}>
             <StaffPanel />
           </ProtectedRoute>
         } />
-
-        {/* Admin Routes */}
         <Route path="/admin" element={
           <ProtectedRoute roles={['admin']}>
-            <div className="p-8 text-center text-gray-500">Admin panel coming in Week 6...</div>
+            <AdminPanel />
           </ProtectedRoute>
         } />
 
-        {/* 404 */}
         <Route path="*" element={
           <div className="min-h-screen flex items-center justify-center text-gray-500">
             <div className="text-center">
