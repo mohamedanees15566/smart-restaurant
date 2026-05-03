@@ -12,6 +12,7 @@ import QrScan from './pages/QrScan'
 import QueuePage from './pages/QueuePage'
 import StaffPanel from './pages/StaffPanel'
 import AdminPanel from './pages/AdminPanel'
+import Profile from './pages/Profile'
 
 function App() {
   return (
@@ -42,6 +43,11 @@ function App() {
         <Route path="/queue" element={
           <ProtectedRoute roles={['customer', 'staff', 'admin']}>
             <QueuePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+            <Profile />
           </ProtectedRoute>
         } />
         <Route path="/staff" element={

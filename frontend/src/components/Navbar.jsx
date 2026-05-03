@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import useCartStore from '../store/cartStore'
+import NotificationBell from './NotificationBell'
 import api from '../services/api'
 
 const Navbar = () => {
@@ -48,7 +49,10 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
-              <span className="text-sm text-gray-500">Hi, {user?.name}</span>
+              <NotificationBell />
+              <Link to="/profile" className="text-sm text-gray-600 hover:text-orange-500 transition">
+                👤 {user?.name?.split(' ')[0]}
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-sm bg-red-50 text-red-500 px-4 py-1.5 rounded-lg hover:bg-red-100 transition"

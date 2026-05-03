@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import api from '../services/api'
 import echo from '../services/echo'
 import Spinner from '../components/Spinner'
+import ReviewForm from '../components/ReviewForm'
 
 const steps = ['placed', 'confirmed', 'preparing', 'ready', 'served']
 
@@ -18,19 +19,17 @@ const OrderDetail = () => {
   const { id } = useParams()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [reviewed, setReviewed] = useState(false)
 
   useEffect(() => {
     fetchOrder()
 
-    // Listen for real-time updates
     const channel = echo.channel(`orders.${id}`)
     channel.listen('.order.updated', (data) => {
       setOrder((prev) => ({ ...prev, status: data.status }))
     })
 
-    return () => {
-      echo.leaveChannel(`orders.${id}`)
-    }
+    return () => echo.leaveChannel(`orders.${id}`)
   }, [id])
 
   const fetchOrder = async () => {
@@ -45,14 +44,24 @@ const OrderDetail = () => {
   }
 
   if (loading) return <Spinner />
-  if (!order) return <div className="text-center py-16 text-gray-400">Order not found</div>
+  if (!order) return (
+    <div className="text-center py-16 text-gray-400">
+      <div className="text-5xl mb-4">❌</div>
+      <p>Order not found</p>
+      <Link to="/orders" className="text-orange-500 text-sm mt-2 block">Back to Orders</Link>
+    </div>
+  )
 
   const currentStep = steps.indexOf(order.status)
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Order #{order.id}</h1>
+        <div className="flex items-center gap-3 mb-6">
+          <Link to="/orders" className="text-gray-400 hover:text-gray-600 text-sm">← Back</Link>
+          <h1 className="text-2xl font-bold text-gray-800">Order #{order.id}</h1>
+        </div>
+
         <p className="text-gray-400 text-sm mb-8">{new Date(order.created_at).toLocaleString()}</p>
 
         {/* Status Tracker */}
@@ -101,15 +110,29 @@ const OrderDetail = () => {
         </div>
 
         {/* Total */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-700">Total</span>
-            <span className="text-2xl font-bold text-orange-500">${parseFloat(order.total_amount).toFixed(2)}</span>
+            <span className="text-2xl font-bold text-orange-500">
+              ${parseFloat(order.total_amount).toFixed(2)}
+            </span>
           </div>
           {order.notes && (
             <p className="text-xs text-gray-400 mt-2">Note: {order.notes}</p>
           )}
         </div>
+
+        {/* Review Form - only show if served */}
+        {order.status === 'served' && !reviewed && (
+          <ReviewForm orderId={order.id} onSubmitted={() => setReviewed(true)} />
+        )}
+
+        {reviewed && (
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
+            <div className="text-4xl mb-2">🌟</div>
+            <p className="text-green-600 font-semibold">Thank you for your review!</p>
+          </div>
+        )}
       </div>
     </div>
   )
