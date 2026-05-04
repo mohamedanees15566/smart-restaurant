@@ -120,10 +120,13 @@ const Cart = () => {
           <button
             onClick={handleOrder}
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition text-sm"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition text-sm mb-3"
           >
             {loading ? 'Placing Order...' : 'Place Order 🎉'}
           </button>
+          <p className="text-xs text-center text-gray-400">
+            You can pay online after placing your order
+          </p>
         </div>
       </div>
     </div>

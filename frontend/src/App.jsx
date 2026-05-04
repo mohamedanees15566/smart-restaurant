@@ -14,6 +14,7 @@ import QueuePage from './pages/QueuePage'
 import StaffPanel from './pages/StaffPanel'
 import AdminPanel from './pages/AdminPanel'
 import Profile from './pages/Profile'
+import Payment from './pages/Payment'
 
 function App() {
   return (
@@ -50,6 +51,11 @@ function App() {
           <Route path="/profile" element={
             <ProtectedRoute roles={['customer', 'staff', 'admin']}>
               <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/payment/:id" element={
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <Payment />
             </ProtectedRoute>
           } />
           <Route path="/staff" element={

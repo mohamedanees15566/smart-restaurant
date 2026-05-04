@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import echo from '../services/echo'
 import Spinner from '../components/Spinner'
@@ -8,17 +8,18 @@ import ReviewForm from '../components/ReviewForm'
 const steps = ['placed', 'confirmed', 'preparing', 'ready', 'served']
 
 const statusIcons = {
-  placed:    '📝',
+  placed: '📝',
   confirmed: '✅',
   preparing: '👨‍🍳',
-  ready:     '🔔',
-  served:    '🍽️',
+  ready: '🔔',
+  served: '🍽️',
 }
 
 const OrderDetail = () => {
   const { id } = useParams()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
   const [reviewed, setReviewed] = useState(false)
 
   useEffect(() => {
@@ -76,16 +77,14 @@ const OrderDetail = () => {
             </div>
             {steps.map((step, index) => (
               <div key={step} className="flex flex-col items-center z-10">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm border-2 transition-all ${
-                  index <= currentStep
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm border-2 transition-all ${index <= currentStep
                     ? 'bg-orange-500 border-orange-500 text-white'
                     : 'bg-white border-gray-200 text-gray-300'
-                }`}>
+                  }`}>
                   {statusIcons[step]}
                 </div>
-                <span className={`text-xs mt-2 font-medium capitalize ${
-                  index <= currentStep ? 'text-orange-500' : 'text-gray-300'
-                }`}>
+                <span className={`text-xs mt-2 font-medium capitalize ${index <= currentStep ? 'text-orange-500' : 'text-gray-300'
+                  }`}>
                   {step}
                 </span>
               </div>
@@ -121,6 +120,24 @@ const OrderDetail = () => {
             <p className="text-xs text-gray-400 mt-2">Note: {order.notes}</p>
           )}
         </div>
+
+        {/* Pay Now button */}
+        {!order.paid_at && order.status !== 'cancelled' && (
+          <div className="mt-4">
+            <button
+              onClick={() => navigate(`/payment/${order.id}`)}
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition text-sm"
+            >
+              💳 Pay Now — ${parseFloat(order.total_amount).toFixed(2)}
+            </button>
+          </div>
+        )}
+
+        {order.paid_at && (
+          <div className="mt-4 bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+            <p className="text-green-600 text-sm font-semibold">✅ Paid on {new Date(order.paid_at).toLocaleString()}</p>
+          </div>
+        )}
 
         {/* Review Form - only show if served */}
         {order.status === 'served' && !reviewed && (
