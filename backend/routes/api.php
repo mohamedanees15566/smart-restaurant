@@ -10,6 +10,7 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PaymentController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -52,6 +53,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifications/unread',    [NotificationController::class, 'unreadCount']);
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markRead']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+
+    // Payment
+    Route::post('/payment/intent',   [PaymentController::class, 'createIntent']);
+    Route::post('/payment/confirm',  [PaymentController::class, 'confirmPayment']);
+    Route::get('/payment/history',   [PaymentController::class, 'paymentHistory']);
 
     // Staff only
     Route::middleware('role:staff,admin')->group(function () {
