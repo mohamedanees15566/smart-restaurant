@@ -1,3 +1,4 @@
+import TableQRCode from '../components/TableQRCode'
 import { useEffect, useState } from 'react'
 import api from '../services/api'
 import Spinner from '../components/Spinner'
@@ -163,11 +164,10 @@ const AdminPanel = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`py-3 text-sm font-medium capitalize border-b-2 transition ${
-                activeTab === tab
+              className={`py-3 text-sm font-medium capitalize border-b-2 transition ${activeTab === tab
                   ? 'border-orange-500 text-orange-500'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                }`}
             >
               {tab === 'dashboard' && '📊 Dashboard'}
               {tab === 'menu' && '🍽️ Menu'}
@@ -378,9 +378,8 @@ const AdminPanel = () => {
                       <td className="px-4 py-3 text-gray-400">{item.category?.name}</td>
                       <td className="px-4 py-3 text-orange-500 font-semibold">${item.price}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                          item.is_available ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
-                        }`}>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${item.is_available ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
+                          }`}>
                           {item.is_available ? 'Available' : 'Unavailable'}
                         </span>
                       </td>
@@ -475,21 +474,24 @@ const AdminPanel = () => {
                       <td className="px-4 py-3 text-gray-400">{table.capacity} seats</td>
                       <td className="px-4 py-3 text-gray-400">{table.location}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                          table.status === 'available' ? 'bg-green-100 text-green-600' :
-                          table.status === 'occupied' ? 'bg-red-100 text-red-500' :
-                          'bg-yellow-100 text-yellow-600'
-                        }`}>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${table.status === 'available' ? 'bg-green-100 text-green-600' :
+                            table.status === 'occupied' ? 'bg-red-100 text-red-500' :
+                              'bg-yellow-100 text-yellow-600'
+                          }`}>
                           {table.status}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => handleDeleteTable(table.id)}
-                          className="text-xs bg-red-50 text-red-500 px-3 py-1 rounded-lg hover:bg-red-100 transition"
-                        >
-                          Delete
-                        </button>
+                        <div className="flex gap-2">
+                          <TableQRCode table={table} />
+                          <button
+                            onClick={() => handleDeleteTable(table.id)}
+                            className="text-xs bg-red-50 text-red-500 px-3 py-1 rounded-lg hover:bg-red-100 transition"
+                          >
+                            Delete
+                          </button>
+                        </div>
+
                       </td>
                     </tr>
                   ))}
@@ -529,20 +531,18 @@ const AdminPanel = () => {
                       </select>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                        user.is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
-                      }`}>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${user.is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
+                        }`}>
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleUpdateUser(user.id, { is_active: !user.is_active })}
-                        className={`text-xs px-3 py-1 rounded-lg transition ${
-                          user.is_active
+                        className={`text-xs px-3 py-1 rounded-lg transition ${user.is_active
                             ? 'bg-red-50 text-red-500 hover:bg-red-100'
                             : 'bg-green-50 text-green-500 hover:bg-green-100'
-                        }`}
+                          }`}
                       >
                         {user.is_active ? 'Deactivate' : 'Activate'}
                       </button>

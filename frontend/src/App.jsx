@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
+import BottomNav from './components/BottomNav'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import Login from './pages/Login'
@@ -18,58 +19,61 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/table/:tableNumber" element={<QrScan />} />
+      <div className="pb-16 md:pb-0">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/table/:tableNumber" element={<QrScan />} />
 
-        <Route path="/cart" element={
-          <ProtectedRoute roles={['customer', 'staff', 'admin']}>
-            <Cart />
-          </ProtectedRoute>
-        } />
-        <Route path="/orders" element={
-          <ProtectedRoute roles={['customer', 'staff', 'admin']}>
-            <Orders />
-          </ProtectedRoute>
-        } />
-        <Route path="/orders/:id" element={
-          <ProtectedRoute roles={['customer', 'staff', 'admin']}>
-            <OrderDetail />
-          </ProtectedRoute>
-        } />
-        <Route path="/queue" element={
-          <ProtectedRoute roles={['customer', 'staff', 'admin']}>
-            <QueuePage />
-          </ProtectedRoute>
-        } />
-        <Route path="/profile" element={
-          <ProtectedRoute roles={['customer', 'staff', 'admin']}>
-            <Profile />
-          </ProtectedRoute>
-        } />
-        <Route path="/staff" element={
-          <ProtectedRoute roles={['staff', 'admin']}>
-            <StaffPanel />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin" element={
-          <ProtectedRoute roles={['admin']}>
-            <AdminPanel />
-          </ProtectedRoute>
-        } />
+          <Route path="/cart" element={
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <Cart />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <Orders />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders/:id" element={
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <OrderDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/queue" element={
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <QueuePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute roles={['customer', 'staff', 'admin']}>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/staff" element={
+            <ProtectedRoute roles={['staff', 'admin']}>
+              <StaffPanel />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin" element={
+            <ProtectedRoute roles={['admin']}>
+              <AdminPanel />
+            </ProtectedRoute>
+          } />
 
-        <Route path="*" element={
-          <div className="min-h-screen flex items-center justify-center text-gray-500">
-            <div className="text-center">
-              <div className="text-6xl mb-4">404</div>
-              <p>Page not found</p>
+          <Route path="*" element={
+            <div className="min-h-screen flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <div className="text-6xl mb-4">404</div>
+                <p>Page not found</p>
+              </div>
             </div>
-          </div>
-        } />
-      </Routes>
+          } />
+        </Routes>
+      </div>
+      <BottomNav />
     </BrowserRouter>
   )
 }

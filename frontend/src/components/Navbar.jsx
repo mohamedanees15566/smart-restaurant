@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import useAuthStore from '../store/authStore'
 import useCartStore from '../store/cartStore'
 import NotificationBell from './NotificationBell'
@@ -8,6 +9,7 @@ const Navbar = () => {
   const { user, token, logout } = useAuthStore()
   const { getCount } = useCartStore()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const handleLogout = async () => {
     try {
@@ -27,7 +29,8 @@ const Navbar = () => {
           🍽️ SmartResto
         </Link>
 
-        <div className="flex items-center gap-5">
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-5">
           <Link to="/" className="text-sm text-gray-600 hover:text-orange-500 transition">Home</Link>
           <Link to="/menu" className="text-sm text-gray-600 hover:text-orange-500 transition">Menu</Link>
           <Link to="/queue" className="text-sm text-gray-600 hover:text-orange-500 transition">Queue</Link>
@@ -67,7 +70,51 @@ const Navbar = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile Right Side */}
+        <div className="flex md:hidden items-center gap-3">
+          {token && <NotificationBell />}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-gray-600 text-2xl"
+          >
+            {menuOpen ? '✕' : '☰'}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {menuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3">
+          <Link to="/" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">🏠 Home</Link>
+          <Link to="/menu" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">🍽️ Menu</Link>
+          <Link to="/queue" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">⏳ Queue</Link>
+
+          {token ? (
+            <>
+              <Link to="/orders" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">📋 Orders</Link>
+              <Link to="/profile" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">👤 Profile</Link>
+              {user?.role === 'admin' && (
+                <Link to="/admin" onClick={() => setMenuOpen(false)} className="block text-sm text-purple-600 py-2">🛠️ Admin</Link>
+              )}
+              {(user?.role === 'staff' || user?.role === 'admin') && (
+                <Link to="/staff" onClick={() => setMenuOpen(false)} className="block text-sm text-blue-600 py-2">👨‍🍳 Staff</Link>
+              )}
+              <button
+                onClick={() => { handleLogout(); setMenuOpen(false) }}
+                className="block w-full text-left text-sm text-red-500 py-2"
+              >
+                🚪 Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">Login</Link>
+              <Link to="/register" onClick={() => setMenuOpen(false)} className="block text-sm bg-orange-500 text-white px-4 py-2 rounded-lg text-center">Register</Link>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   )
 }
