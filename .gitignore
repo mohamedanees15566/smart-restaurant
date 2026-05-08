@@ -1,0 +1,14 @@
+# Backend
+backend/.env
+backend/vendor/
+backend/storage/logs/
+backend/bootstrap/cache/
+
+# Frontend
+frontend/node_modules/
+frontend/.env
+frontend/dist/
+
+# System
+.DS_Store
+Thumbs.db
