@@ -109,34 +109,70 @@ class AdminController extends Controller
     }
 
     public function createMenuItem(Request $request)
-    {
-        $request->validate([
-            'category_id'    => 'required|exists:menu_categories,id',
-            'name'           => 'required|string|max:150',
-            'description'    => 'nullable|string',
-            'price'          => 'required|numeric|min:0',
-            'prep_time_mins' => 'nullable|integer',
-            'is_available'   => 'boolean',
-        ]);
+{
+    $request->validate([
+        'category_id'    => 'required|exists:menu_categories,id',
+        'name'           => 'required|string|max:150',
+        'description'    => 'nullable|string',
+        'price'          => 'required|numeric|min:0',
+        'prep_time_mins' => 'nullable|integer',
+        'is_available'   => 'boolean',
+        'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $item = MenuItem::create($request->all());
-
-        return response()->json([
-            'message' => 'Menu item created!',
-            'item'    => $item,
-        ], 201);
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('menu', 'public');
     }
 
-    public function updateMenuItem(Request $request, $id)
-    {
-        $item = MenuItem::findOrFail($id);
-        $item->update($request->all());
+    $item = MenuItem::create([
+        'category_id'    => $request->category_id,
+        'name'           => $request->name,
+        'description'    => $request->description,
+        'price'          => $request->price,
+        'prep_time_mins' => $request->prep_time_mins ?? 15,
+        'is_available'   => $request->is_available ?? true,
+        'image'          => $imagePath,
+    ]);
 
-        return response()->json([
-            'message' => 'Menu item updated!',
-            'item'    => $item,
-        ]);
+    return response()->json([
+        'message' => 'Menu item created!',
+        'item'    => $item,
+    ], 201);
+}
+
+   public function updateMenuItem(Request $request, $id)
+{
+    $item = MenuItem::findOrFail($id);
+
+    $request->validate([
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    $imagePath = $item->image;
+    if ($request->hasFile('image')) {
+        // Delete old image
+        if ($item->image) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($item->image);
+        }
+        $imagePath = $request->file('image')->store('menu', 'public');
     }
+
+    $item->update([
+        'category_id'    => $request->category_id ?? $item->category_id,
+        'name'           => $request->name ?? $item->name,
+        'description'    => $request->description ?? $item->description,
+        'price'          => $request->price ?? $item->price,
+        'prep_time_mins' => $request->prep_time_mins ?? $item->prep_time_mins,
+        'is_available'   => $request->is_available ?? $item->is_available,
+        'image'          => $imagePath,
+    ]);
+
+    return response()->json([
+        'message' => 'Menu item updated!',
+        'item'    => $item,
+    ]);
+}
 
     public function deleteMenuItem($id)
     {

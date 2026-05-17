@@ -6,7 +6,7 @@ import Toast from '../components/Toast'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar,
-  PieChart, Pie, Cell, Legend
+  PieChart, Pie, Cell,
 } from 'recharts'
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444']
@@ -21,13 +21,14 @@ const AdminPanel = () => {
   const [menuItems, setMenuItems] = useState([])
   const [categories, setCategories] = useState([])
   const [tables, setTables] = useState([])
+  const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState(null)
 
   // Menu form
   const [menuForm, setMenuForm] = useState({
     name: '', category_id: '', price: '',
-    description: '', prep_time_mins: 15, is_available: true
+    description: '', prep_time_mins: 15, is_available: true, image: null
   })
   const [editingItem, setEditingItem] = useState(null)
 
@@ -43,7 +44,7 @@ const AdminPanel = () => {
   const fetchAll = async () => {
     setLoading(true)
     try {
-      const [s, r, t, o, u, m, c, tb] = await Promise.all([
+      const [s, r, t, o, u, m, c, tb, rv] = await Promise.all([
         api.get('/admin/stats'),
         api.get('/admin/analytics/revenue'),
         api.get('/admin/analytics/items'),
@@ -52,6 +53,7 @@ const AdminPanel = () => {
         api.get('/admin/menu/items'),
         api.get('/admin/categories'),
         api.get('/admin/tables'),
+        api.get('/reviews'),
       ])
       setStats(s.data)
       setRevenue(r.data)
@@ -61,6 +63,7 @@ const AdminPanel = () => {
       setMenuItems(m.data)
       setCategories(c.data)
       setTables(tb.data)
+      setReviews(rv.data)
     } catch (err) {
       console.error(err)
     } finally {
@@ -82,14 +85,30 @@ const AdminPanel = () => {
   // ── MENU MANAGEMENT ──
   const handleMenuSubmit = async () => {
     try {
+      const formData = new FormData()
+      formData.append('name', menuForm.name)
+      formData.append('category_id', menuForm.category_id)
+      formData.append('price', menuForm.price)
+      formData.append('description', menuForm.description)
+      formData.append('prep_time_mins', menuForm.prep_time_mins)
+      formData.append('is_available', menuForm.is_available ? 1 : 0)
+      if (menuForm.image) {
+        formData.append('image', menuForm.image)
+      }
+
       if (editingItem) {
-        await api.patch(`/admin/menu/items/${editingItem.id}`, menuForm)
+        formData.append('_method', 'PATCH')
+        await api.post(`/admin/menu/items/${editingItem.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
         setToast({ message: 'Menu item updated!', type: 'success' })
       } else {
-        await api.post('/admin/menu/items', menuForm)
+        await api.post('/admin/menu/items', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
         setToast({ message: 'Menu item created!', type: 'success' })
       }
-      setMenuForm({ name: '', category_id: '', price: '', description: '', prep_time_mins: 15, is_available: true })
+      setMenuForm({ name: '', category_id: '', price: '', description: '', prep_time_mins: 15, is_available: true, image: null })
       setEditingItem(null)
       fetchAll()
     } catch (err) {
@@ -117,6 +136,7 @@ const AdminPanel = () => {
       description: item.description || '',
       prep_time_mins: item.prep_time_mins,
       is_available: item.is_available,
+      image: null,
     })
     setActiveTab('menu')
   }
@@ -146,7 +166,7 @@ const AdminPanel = () => {
 
   if (loading) return <Spinner />
 
-  const tabs = ['dashboard', 'menu', 'tables', 'users']
+  const tabs = ['dashboard', 'menu', 'tables', 'users', 'reviews']
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -158,21 +178,23 @@ const AdminPanel = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-100 px-6">
-        <div className="flex gap-6">
+      <div className="bg-white border-b border-gray-100 px-6 overflow-x-auto">
+        <div className="flex gap-6 min-w-max">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`py-3 text-sm font-medium capitalize border-b-2 transition ${activeTab === tab
+              className={`py-3 text-sm font-medium capitalize border-b-2 transition ${
+                activeTab === tab
                   ? 'border-orange-500 text-orange-500'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+              }`}
             >
               {tab === 'dashboard' && '📊 Dashboard'}
               {tab === 'menu' && '🍽️ Menu'}
               {tab === 'tables' && '🪑 Tables'}
               {tab === 'users' && '👥 Users'}
+              {tab === 'reviews' && `⭐ Reviews (${reviews.length})`}
             </button>
           ))}
         </div>
@@ -331,6 +353,25 @@ const AdminPanel = () => {
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                   />
                 </div>
+
+                {/* Image Upload */}
+                <div className="md:col-span-2">
+                  <label className="text-xs text-gray-500 block mb-1">Food Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setMenuForm({ ...menuForm, image: e.target.files[0] })}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none"
+                  />
+                  {editingItem?.image && (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${editingItem.image}`}
+                      alt="Current"
+                      className="mt-2 h-20 w-20 object-cover rounded-lg"
+                    />
+                  )}
+                </div>
+
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -350,7 +391,10 @@ const AdminPanel = () => {
                 </button>
                 {editingItem && (
                   <button
-                    onClick={() => { setEditingItem(null); setMenuForm({ name: '', category_id: '', price: '', description: '', prep_time_mins: 15, is_available: true }) }}
+                    onClick={() => {
+                      setEditingItem(null)
+                      setMenuForm({ name: '', category_id: '', price: '', description: '', prep_time_mins: 15, is_available: true, image: null })
+                    }}
                     className="bg-gray-100 text-gray-600 text-sm font-semibold px-6 py-2 rounded-xl hover:bg-gray-200 transition"
                   >
                     Cancel
@@ -364,6 +408,7 @@ const AdminPanel = () => {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-500 text-xs">
                   <tr>
+                    <th className="text-left px-4 py-3">Image</th>
                     <th className="text-left px-4 py-3">Item</th>
                     <th className="text-left px-4 py-3">Category</th>
                     <th className="text-left px-4 py-3">Price</th>
@@ -374,12 +419,24 @@ const AdminPanel = () => {
                 <tbody>
                   {menuItems.map((item) => (
                     <tr key={item.id} className="border-t border-gray-50 hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        {item.image ? (
+                          <img
+                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`}
+                            alt={item.name}
+                            className="w-10 h-10 object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center text-lg">🍽️</div>
+                        )}
+                      </td>
                       <td className="px-4 py-3 font-medium text-gray-700">{item.name}</td>
                       <td className="px-4 py-3 text-gray-400">{item.category?.name}</td>
                       <td className="px-4 py-3 text-orange-500 font-semibold">${item.price}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${item.is_available ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
-                          }`}>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          item.is_available ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
+                        }`}>
                           {item.is_available ? 'Available' : 'Unavailable'}
                         </span>
                       </td>
@@ -474,10 +531,11 @@ const AdminPanel = () => {
                       <td className="px-4 py-3 text-gray-400">{table.capacity} seats</td>
                       <td className="px-4 py-3 text-gray-400">{table.location}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${table.status === 'available' ? 'bg-green-100 text-green-600' :
-                            table.status === 'occupied' ? 'bg-red-100 text-red-500' :
-                              'bg-yellow-100 text-yellow-600'
-                          }`}>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          table.status === 'available' ? 'bg-green-100 text-green-600' :
+                          table.status === 'occupied' ? 'bg-red-100 text-red-500' :
+                          'bg-yellow-100 text-yellow-600'
+                        }`}>
                           {table.status}
                         </span>
                       </td>
@@ -491,7 +549,6 @@ const AdminPanel = () => {
                             Delete
                           </button>
                         </div>
-
                       </td>
                     </tr>
                   ))}
@@ -531,18 +588,20 @@ const AdminPanel = () => {
                       </select>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${user.is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
-                        }`}>
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        user.is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
+                      }`}>
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleUpdateUser(user.id, { is_active: !user.is_active })}
-                        className={`text-xs px-3 py-1 rounded-lg transition ${user.is_active
+                        className={`text-xs px-3 py-1 rounded-lg transition ${
+                          user.is_active
                             ? 'bg-red-50 text-red-500 hover:bg-red-100'
                             : 'bg-green-50 text-green-500 hover:bg-green-100'
-                          }`}
+                        }`}
                       >
                         {user.is_active ? 'Deactivate' : 'Activate'}
                       </button>
@@ -551,6 +610,44 @@ const AdminPanel = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* REVIEWS TAB */}
+        {activeTab === 'reviews' && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h2 className="font-semibold text-gray-700">Customer Reviews ⭐</h2>
+            </div>
+            {reviews.length === 0 ? (
+              <div className="text-center py-16 text-gray-400">
+                <div className="text-5xl mb-3">⭐</div>
+                <p>No reviews yet</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {reviews.map((review) => (
+                  <div key={review.id} className="px-6 py-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-medium text-gray-700 text-sm">{review.user?.name}</p>
+                        <p className="text-xs text-gray-400">{new Date(review.created_at).toLocaleString()}</p>
+                      </div>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} className={star <= review.rating ? 'text-yellow-400' : 'text-gray-200'}>
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    {review.comment && (
+                      <p className="text-sm text-gray-500 mt-1">{review.comment}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

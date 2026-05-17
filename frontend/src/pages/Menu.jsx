@@ -95,11 +95,10 @@ const Menu = () => {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setSelectedCategory('')}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                selectedCategory === ''
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${selectedCategory === ''
                   ? 'bg-orange-500 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+                }`}
             >
               All
             </button>
@@ -107,11 +106,10 @@ const Menu = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                  selectedCategory === cat.id
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${selectedCategory === cat.id
                     ? 'bg-orange-500 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 {cat.name}
               </button>
@@ -134,10 +132,23 @@ const Menu = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((item) => (
               <div key={item.id} className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition">
-                {/* Image placeholder */}
-                <div className="bg-orange-50 h-40 flex items-center justify-center text-5xl">
-                  🍽️
+
+                {/* Image */}
+                <div className="h-40 overflow-hidden bg-orange-50">
+                  {item.image ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.style.display = 'none' }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl">
+                      🍽️
+                    </div>
+                  )}
                 </div>
+
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-1">
                     <h3 className="font-semibold text-gray-800">{item.name}</h3>
