@@ -30,6 +30,7 @@ const StaffPanel = () => {
   const [orders, setOrders] = useState([])
   const [tables, setTables] = useState([])
   const [queue, setQueue] = useState([])
+  const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState(null)
   const [activeTab, setActiveTab] = useState('orders')
@@ -52,7 +53,7 @@ const StaffPanel = () => {
   }, [])
 
   const fetchAll = async () => {
-    await Promise.all([fetchOrders(), fetchTables(), fetchQueue()])
+    await Promise.all([fetchOrders(), fetchTables(), fetchQueue(), fetchReservations()])
     setLoading(false)
   }
 
@@ -78,6 +79,15 @@ const StaffPanel = () => {
     try {
       const res = await api.get('/queue')
       setQueue(res.data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const fetchReservations = async () => {
+    try {
+      const res = await api.get('/reservations')
+      setReservations(res.data)
     } catch (err) {
       console.error(err)
     }
@@ -130,6 +140,26 @@ const StaffPanel = () => {
     }
   }
 
+  const handleConfirmReservation = async (id) => {
+    try {
+      await api.patch(`/reservations/${id}/confirm`)
+      setToast({ message: 'Reservation confirmed! ✅', type: 'success' })
+      fetchReservations()
+    } catch (err) {
+      setToast({ message: 'Failed to confirm.', type: 'error' })
+    }
+  }
+
+  const handleCancelReservation = async (id) => {
+    try {
+      await api.patch(`/reservations/${id}/cancel`)
+      setToast({ message: 'Reservation cancelled.', type: 'info' })
+      fetchReservations()
+    } catch (err) {
+      setToast({ message: 'Failed to cancel.', type: 'error' })
+    }
+  }
+
   if (loading) return <Spinner />
 
   return (
@@ -142,9 +172,9 @@ const StaffPanel = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-100 px-6">
-        <div className="flex gap-6">
-          {['orders', 'tables', 'queue'].map((tab) => (
+      <div className="bg-white border-b border-gray-100 px-6 overflow-x-auto">
+        <div className="flex gap-6 min-w-max">
+          {['orders', 'tables', 'queue', 'reservations'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -157,6 +187,7 @@ const StaffPanel = () => {
               {tab === 'orders' && `📋 Orders (${orders.length})`}
               {tab === 'tables' && `🪑 Tables (${tables.length})`}
               {tab === 'queue' && `⏳ Queue (${queue.length})`}
+              {tab === 'reservations' && `📅 Reservations (${reservations.length})`}
             </button>
           ))}
         </div>
@@ -196,6 +227,12 @@ const StaffPanel = () => {
                     </div>
                   ))}
                 </div>
+
+                {order.notes && (
+                  <div className="bg-yellow-50 rounded-lg px-3 py-2 mb-3">
+                    <p className="text-yellow-600 text-xs">📝 {order.notes}</p>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-orange-500">${parseFloat(order.total_amount).toFixed(2)}</span>
@@ -299,6 +336,61 @@ const StaffPanel = () => {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* RESERVATIONS TAB */}
+        {activeTab === 'reservations' && (
+          <div className="space-y-3">
+            {reservations.length === 0 ? (
+              <div className="text-center py-16 text-gray-400">
+                <div className="text-5xl mb-3">📅</div>
+                <p>No reservations yet</p>
+              </div>
+            ) : reservations.map((r) => (
+              <div key={r.id} className="bg-white rounded-2xl shadow-sm p-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-semibold text-gray-800">{r.user?.name}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      📅 {new Date(r.reserved_at).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      🪑 Table {r.table?.table_number} — 👥 {r.party_size} people — 📍 {r.table?.location}
+                    </p>
+                    {r.notes && (
+                      <p className="text-xs text-gray-400 mt-1">📝 {r.notes}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                      r.status === 'confirmed' ? 'bg-green-100 text-green-600' :
+                      r.status === 'cancelled' ? 'bg-red-100 text-red-500' :
+                      r.status === 'completed' ? 'bg-gray-100 text-gray-500' :
+                      'bg-yellow-100 text-yellow-600'
+                    }`}>
+                      {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
+                    </span>
+                    {r.status === 'pending' && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleConfirmReservation(r.id)}
+                          className="bg-green-500 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-green-600 transition"
+                        >
+                          Confirm ✅
+                        </button>
+                        <button
+                          onClick={() => handleCancelReservation(r.id)}
+                          className="bg-red-50 text-red-500 text-xs px-3 py-1.5 rounded-lg hover:bg-red-100 transition"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

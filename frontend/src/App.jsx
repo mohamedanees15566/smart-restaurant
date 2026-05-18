@@ -15,6 +15,8 @@ import StaffPanel from './pages/StaffPanel'
 import AdminPanel from './pages/AdminPanel'
 import Profile from './pages/Profile'
 import Payment from './pages/Payment'
+import Reservation from './pages/Reservation'
+import KitchenDisplay from './pages/KitchenDisplay'
 
 function App() {
   return (
@@ -22,12 +24,15 @@ function App() {
       <Navbar />
       <div className="pb-16 md:pb-0">
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/menu" element={<Menu />} />
           <Route path="/table/:tableNumber" element={<QrScan />} />
+          <Route path="/reservation" element={<Reservation />} />
 
+          {/* Customer Routes */}
           <Route path="/cart" element={
             <ProtectedRoute roles={['customer', 'staff', 'admin']}>
               <Cart />
@@ -58,17 +63,27 @@ function App() {
               <Payment />
             </ProtectedRoute>
           } />
+
+          {/* Staff Routes */}
           <Route path="/staff" element={
             <ProtectedRoute roles={['staff', 'admin']}>
               <StaffPanel />
             </ProtectedRoute>
           } />
+          <Route path="/kitchen" element={
+            <ProtectedRoute roles={['staff', 'admin']}>
+              <KitchenDisplay />
+            </ProtectedRoute>
+          } />
+
+          {/* Admin Routes */}
           <Route path="/admin" element={
             <ProtectedRoute roles={['admin']}>
               <AdminPanel />
             </ProtectedRoute>
           } />
 
+          {/* 404 */}
           <Route path="*" element={
             <div className="min-h-screen flex items-center justify-center text-gray-500">
               <div className="text-center">

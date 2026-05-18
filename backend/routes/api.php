@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ReservationController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -101,4 +102,17 @@ Route::middleware('auth:sanctum')->group(function () {
     $user->update($request->only('name', 'phone'));
     return response()->json(['user' => $user]);
     });
+
+    // Reservations
+    Route::get('/reservations/available-tables', [ReservationController::class, 'availableTables']);
+    Route::post('/reservations',                 [ReservationController::class, 'store']);
+    Route::get('/reservations/mine',             [ReservationController::class, 'myReservations']);
+    Route::patch('/reservations/{id}/cancel',    [ReservationController::class, 'cancel']);
+
+    // Staff reservations
+    Route::middleware('role:staff,admin')->group(function () {
+    Route::get('/reservations',              [ReservationController::class, 'allReservations']);
+    Route::patch('/reservations/{id}/confirm', [ReservationController::class, 'confirm']);
+});
+
 });
