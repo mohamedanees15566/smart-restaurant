@@ -98,7 +98,8 @@ const AdminPanel = () => {
       }
 
       if (editingItem) {
-        await api.patch(`/admin/menu/items/${editingItem.id}`, formData)
+        // POST (not PATCH): PHP only receives uploaded files on POST requests
+        await api.post(`/admin/menu/items/${editingItem.id}`, formData)
         setToast({ message: 'Menu item updated!', type: 'success' })
       } else {
         await api.post('/admin/menu/items', formData)

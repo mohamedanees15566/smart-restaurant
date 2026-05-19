@@ -178,7 +178,7 @@ class AdminController extends Controller
 
     return response()->json([
         'message' => 'Menu item updated!',
-        'item'    => $item,
+        'item'    => $item->fresh(),
     ]);
 }
 

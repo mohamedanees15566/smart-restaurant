@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/admin/users/{id}',      [AdminController::class, 'updateUser']);
         Route::get('/admin/menu/items',        [AdminController::class, 'menuItems']);
         Route::post('/admin/menu/items',       [AdminController::class, 'createMenuItem']);
+        Route::post('/admin/menu/items/{id}',  [AdminController::class, 'updateMenuItem']); // POST required for file uploads (PHP ignores files on PATCH)
         Route::patch('/admin/menu/items/{id}', [AdminController::class, 'updateMenuItem']);
         Route::delete('/admin/menu/items/{id}',[AdminController::class, 'deleteMenuItem']);
         Route::get('/admin/categories',        [AdminController::class, 'categories']);
