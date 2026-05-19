@@ -1,6 +1,7 @@
 import TableQRCode from '../components/TableQRCode'
 import { useEffect, useState } from 'react'
 import api from '../services/api'
+import { getMenuImageUrl } from '../utils/media'
 import Spinner from '../components/Spinner'
 import Toast from '../components/Toast'
 import {
@@ -361,9 +362,9 @@ const AdminPanel = () => {
                     onChange={(e) => setMenuForm({ ...menuForm, image: e.target.files[0] })}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none"
                   />
-                  {editingItem?.image && (
+                  {getMenuImageUrl(editingItem) && (
                     <img
-                      src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${editingItem.image}`}
+                      src={getMenuImageUrl(editingItem)}
                       alt="Current"
                       className="mt-2 h-20 w-20 object-cover rounded-lg"
                     />
@@ -418,9 +419,9 @@ const AdminPanel = () => {
                   {menuItems.map((item) => (
                     <tr key={item.id} className="border-t border-gray-50 hover:bg-gray-50">
                       <td className="px-4 py-3">
-                        {item.image ? (
+                        {getMenuImageUrl(item) ? (
                           <img
-                            src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`}
+                            src={getMenuImageUrl(item)}
                             alt={item.name}
                             className="w-10 h-10 object-cover rounded-lg"
                           />

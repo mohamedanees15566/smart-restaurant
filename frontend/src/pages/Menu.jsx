@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
+import { getMenuImageUrl } from '../utils/media'
 import useCartStore from '../store/cartStore'
 import useAuthStore from '../store/authStore'
 import Toast from '../components/Toast'
@@ -135,9 +136,9 @@ const Menu = () => {
 
                 {/* Image */}
                 <div className="h-40 overflow-hidden bg-orange-50">
-                  {item.image ? (
+                  {getMenuImageUrl(item) ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${item.image}`}
+                      src={getMenuImageUrl(item)}
                       alt={item.name}
                       className="w-full h-full object-cover"
                       onError={(e) => { e.target.style.display = 'none' }}
