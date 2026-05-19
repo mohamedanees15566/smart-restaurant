@@ -28,6 +28,9 @@ Route::get('/reviews', [ReviewController::class, 'index']);
 // QR Code scan
 Route::get('/table/{tableNumber}/scan', [QrController::class, 'scan']);
 
+// Reservation table search (guests can browse availability before login)
+Route::get('/reservations/available-tables', [ReservationController::class, 'availableTables']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -104,7 +107,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Reservations
-    Route::get('/reservations/available-tables', [ReservationController::class, 'availableTables']);
     Route::post('/reservations',                 [ReservationController::class, 'store']);
     Route::get('/reservations/mine',             [ReservationController::class, 'myReservations']);
     Route::patch('/reservations/{id}/cancel',    [ReservationController::class, 'cancel']);

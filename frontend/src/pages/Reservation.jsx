@@ -31,7 +31,9 @@ const Reservation = () => {
       const res = await api.get('/reservations/mine')
       setMyReservations(res.data)
     } catch (err) {
-      console.error(err)
+      if (err.response?.status !== 401) {
+        console.error(err)
+      }
     }
   }
 
