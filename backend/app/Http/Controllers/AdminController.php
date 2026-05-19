@@ -117,7 +117,7 @@ class AdminController extends Controller
         'price'          => 'required|numeric|min:0',
         'prep_time_mins' => 'nullable|integer',
         'is_available'   => 'boolean',
-        'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
     ]);
 
     $imagePath = null;
@@ -131,7 +131,7 @@ class AdminController extends Controller
         'description'    => $request->description,
         'price'          => $request->price,
         'prep_time_mins' => $request->prep_time_mins ?? 15,
-        'is_available'   => $request->is_available ?? true,
+        'is_available'   => $request->boolean('is_available', true),
         'image'          => $imagePath,
     ]);
 
@@ -146,12 +146,17 @@ class AdminController extends Controller
     $item = MenuItem::findOrFail($id);
 
     $request->validate([
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'category_id'    => 'sometimes|required|exists:menu_categories,id',
+        'name'           => 'sometimes|required|string|max:150',
+        'description'    => 'nullable|string',
+        'price'          => 'sometimes|required|numeric|min:0',
+        'prep_time_mins' => 'nullable|integer',
+        'is_available'   => 'sometimes|boolean',
+        'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
     ]);
 
     $imagePath = $item->image;
     if ($request->hasFile('image')) {
-        // Delete old image
         if ($item->image) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($item->image);
         }
@@ -159,12 +164,14 @@ class AdminController extends Controller
     }
 
     $item->update([
-        'category_id'    => $request->category_id ?? $item->category_id,
-        'name'           => $request->name ?? $item->name,
-        'description'    => $request->description ?? $item->description,
-        'price'          => $request->price ?? $item->price,
-        'prep_time_mins' => $request->prep_time_mins ?? $item->prep_time_mins,
-        'is_available'   => $request->is_available ?? $item->is_available,
+        'category_id'    => $request->input('category_id', $item->category_id),
+        'name'           => $request->input('name', $item->name),
+        'description'    => $request->input('description', $item->description),
+        'price'          => $request->input('price', $item->price),
+        'prep_time_mins' => $request->input('prep_time_mins', $item->prep_time_mins),
+        'is_available'   => $request->has('is_available')
+            ? $request->boolean('is_available')
+            : $item->is_available,
         'image'          => $imagePath,
     ]);
 
@@ -177,6 +184,9 @@ class AdminController extends Controller
     public function deleteMenuItem($id)
     {
         $item = MenuItem::findOrFail($id);
+        if ($item->image) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($item->image);
+        }
         $item->delete();
 
         return response()->json(['message' => 'Menu item deleted!']);

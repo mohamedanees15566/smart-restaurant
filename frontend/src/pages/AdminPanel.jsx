@@ -97,22 +97,20 @@ const AdminPanel = () => {
       }
 
       if (editingItem) {
-        formData.append('_method', 'PATCH')
-        await api.post(`/admin/menu/items/${editingItem.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        await api.patch(`/admin/menu/items/${editingItem.id}`, formData)
         setToast({ message: 'Menu item updated!', type: 'success' })
       } else {
-        await api.post('/admin/menu/items', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
+        await api.post('/admin/menu/items', formData)
         setToast({ message: 'Menu item created!', type: 'success' })
       }
       setMenuForm({ name: '', category_id: '', price: '', description: '', prep_time_mins: 15, is_available: true, image: null })
       setEditingItem(null)
       fetchAll()
     } catch (err) {
-      setToast({ message: 'Failed to save item.', type: 'error' })
+      const msg = err.response?.data?.message
+        || err.response?.data?.errors?.image?.[0]
+        || 'Failed to save item.'
+      setToast({ message: msg, type: 'error' })
     }
   }
 
