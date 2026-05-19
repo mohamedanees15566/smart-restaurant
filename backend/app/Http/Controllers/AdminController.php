@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Table;
 use App\Models\User;
 use App\Models\Queue;
+use App\Support\MenuImageStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -117,12 +118,12 @@ class AdminController extends Controller
         'price'          => 'required|numeric|min:0',
         'prep_time_mins' => 'nullable|integer',
         'is_available'   => 'boolean',
-        'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        'image'          => MenuImageStorage::rules(),
     ]);
 
     $imagePath = null;
     if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('menu', 'public');
+        $imagePath = MenuImageStorage::store($request->file('image'));
     }
 
     $item = MenuItem::create([
@@ -152,7 +153,7 @@ class AdminController extends Controller
         'price'          => 'sometimes|required|numeric|min:0',
         'prep_time_mins' => 'nullable|integer',
         'is_available'   => 'sometimes|boolean',
-        'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        'image'          => MenuImageStorage::rules(),
     ]);
 
     $imagePath = $item->image;
@@ -160,7 +161,7 @@ class AdminController extends Controller
         if ($item->image) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($item->image);
         }
-        $imagePath = $request->file('image')->store('menu', 'public');
+        $imagePath = MenuImageStorage::store($request->file('image'));
     }
 
     $item->update([
