@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
+import { HOW_IT_WORKS_STEPS } from '../constants/howItWorksSteps'
 
 const features = [
   { icon: '📱', title: 'QR Code Ordering', desc: 'Scan your table QR code and order instantly from your phone' },
@@ -14,122 +17,115 @@ const Home = () => {
   const { token, user } = useAuthStore()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white py-24 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 text-9xl flex items-center justify-center select-none">
-          🍽️
-        </div>
-        <div className="relative z-10">
-          <div className="inline-block bg-white bg-opacity-20 text-orange-100 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
+    <div className="min-h-screen">
+      <section className="hero-gradient px-4 py-24 sm:py-32">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgb(249_115_22/0.15),transparent_50%)]" />
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <span className="animate-fade-in inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-orange-200 backdrop-blur-sm">
             Smart Restaurant System
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-            Fresh Food,<br />Fast Service 🍽️
+          </span>
+          <h1 className="animate-slide-up mt-8 text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+            Fresh food,
+            <br />
+            <span className="bg-gradient-to-r from-orange-300 to-amber-200 bg-clip-text text-transparent">
+              fast service
+            </span>
           </h1>
-          <p className="text-orange-100 text-lg mb-10 max-w-xl mx-auto">
+          <p className="animate-slide-up stagger-1 mx-auto mt-6 max-w-xl text-lg text-stone-300">
             Browse our menu, pre-order your food, and skip the wait with our smart queue system.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link
-              to="/menu"
-              className="bg-white text-orange-500 font-bold px-8 py-3 rounded-full hover:bg-orange-50 transition shadow-lg"
-            >
-              Browse Menu
+          <div className="animate-slide-up stagger-2 mt-10 flex flex-wrap justify-center gap-4">
+            <Link to="/menu">
+              <Button className="min-w-[160px] shadow-lg shadow-orange-500/30">Browse Menu</Button>
             </Link>
-            <Link
-              to="/queue"
-              className="border-2 border-white text-white font-bold px-8 py-3 rounded-full hover:bg-orange-600 transition"
-            >
-              Join Queue
+            <Link to="/queue">
+              <button type="button" className="btn-secondary min-w-[160px] border-white/20 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white">
+                Join Queue
+              </button>
             </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Welcome back if logged in */}
       {token && (
-        <div className="bg-orange-50 border-b border-orange-100 px-4 py-3 text-center">
-          <p className="text-orange-600 text-sm font-medium">
-            👋 Welcome back, {user?.name}! Ready to order?{' '}
-            <Link to="/menu" className="underline font-bold">Browse Menu</Link>
+        <div className="border-b border-orange-200/60 bg-orange-50/80 px-4 py-3 text-center backdrop-blur-sm">
+          <p className="text-sm font-medium text-orange-900">
+            Welcome back, {user?.name}!{' '}
+            <Link to="/menu" className="font-bold text-orange-600 underline-offset-2 hover:underline">
+              Browse Menu
+            </Link>
           </p>
         </div>
       )}
 
-      {/* Features */}
-      <div className="max-w-5xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">Why SmartResto?</h2>
-          <p className="text-gray-400 text-sm max-w-md mx-auto">
-            Everything you need for a seamless dining experience
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {features.map((f, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition text-center">
-              <div className="text-4xl mb-3">{f.icon}</div>
-              <h3 className="font-semibold text-gray-800 mb-2">{f.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* How it works */}
-      <div className="bg-white py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">How it works</h2>
-            <p className="text-gray-400 text-sm">Simple steps to enjoy your meal</p>
+      <section className="page-shell">
+        <div className="page-container">
+          <div className="mb-12 text-center">
+            <h2 className="section-title">Why SmartResto?</h2>
+            <p className="section-subtitle mx-auto max-w-md">
+              Everything you need for a seamless dining experience
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { step: '01', icon: '📱', title: 'Scan QR Code', desc: 'Scan the QR code on your table' },
-              { step: '02', icon: '🍽️', title: 'Browse & Order', desc: 'Choose from our delicious menu' },
-              { step: '03', icon: '👨‍🍳', title: 'We Prepare', desc: 'Kitchen gets your order instantly' },
-              { step: '04', icon: '🔔', title: 'Get Notified', desc: 'We notify you when food is ready' },
-            ].map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-4xl mb-2">{s.icon}</div>
-                <div className="text-xs font-bold text-orange-500 mb-1">STEP {s.step}</div>
-                <h3 className="font-semibold text-gray-800 mb-1 text-sm">{s.title}</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">{s.desc}</p>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f, i) => (
+              <Card key={f.title} hover className={`animate-slide-up p-6 text-center stagger-${(i % 4) + 1}`}>
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-3xl">
+                  {f.icon}
+                </div>
+                <h3 className="font-semibold text-stone-900">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-stone-500">{f.desc}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-stone-200/80 bg-white/60 px-4 py-16 backdrop-blur-sm sm:py-20">
+        <div className="page-container max-w-4xl">
+          <div className="mb-12 text-center">
+            <h2 className="section-title">How it works</h2>
+            <p className="section-subtitle">Simple steps to enjoy your meal</p>
+          </div>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+            {HOW_IT_WORKS_STEPS.map((s, i) => (
+              <div key={s.step} className={`animate-slide-up text-center stagger-${i + 1}`}>
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-stone-900 text-3xl text-white shadow-lg">
+                  {s.icon}
+                </div>
+                <p className="text-xs font-bold uppercase tracking-wider text-orange-600">Step {s.step}</p>
+                <h3 className="mt-2 font-semibold text-stone-900">{s.title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-stone-500">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* CTA */}
       {!token && (
-        <div className="bg-gray-900 text-white py-16 px-4 text-center">
-          <h2 className="text-2xl font-bold mb-3">Ready to order?</h2>
-          <p className="text-gray-400 mb-8 text-sm">
+        <section className="bg-stone-900 px-4 py-20 text-center text-white">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Ready to order?</h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-stone-400">
             Create an account and enjoy a seamless dining experience
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link
-              to="/register"
-              className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-full transition"
-            >
-              Create Account
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link to="/register">
+              <Button>Create Account</Button>
             </Link>
-            <Link
-              to="/menu"
-              className="border border-gray-600 text-gray-300 hover:border-gray-400 font-bold px-8 py-3 rounded-full transition"
-            >
-              Browse Menu
+            <Link to="/menu">
+              <button type="button" className="btn-secondary border-stone-600 text-stone-200 hover:border-stone-500 hover:bg-stone-800">
+                Browse Menu
+              </button>
             </Link>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Footer */}
-      <footer className="bg-gray-950 text-gray-500 py-8 px-4 text-center text-xs">
-        <p className="text-xl font-bold text-orange-500 mb-2">🍽️ SmartResto</p>
-        <p>Smart Restaurant Pre-Order & Queue Management System</p>
-        <p className="mt-1">© 2026 SmartResto. All rights reserved.</p>
+      <footer className="border-t border-stone-200 bg-white px-4 py-10 text-center">
+        <p className="text-lg font-bold text-stone-900">
+          <span className="text-orange-600">Smart</span>Resto
+        </p>
+        <p className="mt-1 text-xs text-stone-500">Smart Restaurant Pre-Order & Queue Management</p>
+        <p className="mt-2 text-xs text-stone-400">© 2026 SmartResto. All rights reserved.</p>
       </footer>
     </div>
   )

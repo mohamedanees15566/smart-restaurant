@@ -1,14 +1,23 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import useAuthStore from '../store/authStore'
 import useCartStore from '../store/cartStore'
 import NotificationBell from './NotificationBell'
 import api from '../services/api'
+import Button from './ui/Button'
+
+const navItems = [
+  { to: '/', label: 'Home' },
+  { to: '/menu', label: 'Menu' },
+  { to: '/queue', label: 'Queue' },
+  { to: '/reservation', label: 'Reserve' },
+]
 
 const Navbar = () => {
   const { user, token, logout } = useAuthStore()
   const { getCount } = useCartStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const handleLogout = async () => {
@@ -22,217 +31,145 @@ const Navbar = () => {
     }
   }
 
+  const isActive = (path) =>
+    location.pathname === path ? 'nav-link-active' : 'nav-link'
+
+  const closeMobile = () => setMenuOpen(false)
+
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        
-        {/* Logo */}
-        <Link to="/" className="text-xl font-bold text-orange-500">
-          🍽️ SmartResto
+    <header className="glass-nav">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
+        <Link
+          to="/"
+          className="group flex items-center gap-2 text-lg font-bold tracking-tight text-stone-900 transition hover:text-orange-600"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-sm text-white shadow-md shadow-orange-500/25 transition group-hover:scale-105">
+            🍽
+          </span>
+          <span>SmartResto</span>
         </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-5">
-          <Link to="/" className="text-sm text-gray-600 hover:text-orange-500 transition">
-            Home
-          </Link>
-
-          <Link to="/menu" className="text-sm text-gray-600 hover:text-orange-500 transition">
-            Menu
-          </Link>
-
-          <Link to="/queue" className="text-sm text-gray-600 hover:text-orange-500 transition">
-            Queue
-          </Link>
-
-          <Link to="/reservation" className="text-sm text-gray-600 hover:text-orange-500 transition">
-            Reserve
-          </Link>
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+          {navItems.map((item) => (
+            <Link key={item.to} to={item.to} className={`rounded-lg px-3 py-2 ${isActive(item.to)}`}>
+              {item.label}
+            </Link>
+          ))}
 
           {token ? (
-            <div className="flex items-center gap-4">
-              
+            <div className="ml-2 flex items-center gap-1 border-l border-stone-200 pl-4">
               {user?.role === 'admin' && (
-                <Link
-                  to="/admin"
-                  className="text-sm text-purple-600 font-medium hover:underline"
-                >
+                <Link to="/admin" className="rounded-lg px-3 py-2 text-sm font-medium text-violet-600 hover:bg-violet-50">
                   Admin
                 </Link>
               )}
-
               {(user?.role === 'staff' || user?.role === 'admin') && (
                 <>
-                  <Link
-                    to="/staff"
-                    className="text-sm text-blue-600 font-medium hover:underline"
-                  >
+                  <Link to="/staff" className="rounded-lg px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50">
                     Staff
                   </Link>
-
-                  <Link
-                    to="/kitchen"
-                    className="text-sm text-green-600 font-medium hover:underline"
-                  >
+                  <Link to="/kitchen" className="rounded-lg px-3 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50">
                     Kitchen
                   </Link>
                 </>
               )}
-
-              <Link
-                to="/orders"
-                className="text-sm text-gray-600 hover:text-orange-500 transition"
-              >
+              <Link to="/orders" className={`rounded-lg px-3 py-2 ${isActive('/orders')}`}>
                 Orders
               </Link>
-
               <Link
                 to="/cart"
-                className="text-sm text-gray-600 hover:text-orange-500 relative"
+                className={`relative rounded-lg px-3 py-2 ${isActive('/cart')}`}
+                aria-label={`Cart, ${getCount()} items`}
               >
-                🛒
+                Cart
                 {getCount() > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold text-white">
                     {getCount()}
                   </span>
                 )}
               </Link>
-
               <NotificationBell />
-
-              <Link
-                to="/profile"
-                className="text-sm text-gray-600 hover:text-orange-500 transition"
-              >
-                👤 {user?.name?.split(' ')[0]}
+              <Link to="/profile" className={`rounded-lg px-3 py-2 ${isActive('/profile')}`}>
+                {user?.name?.split(' ')[0]}
               </Link>
-
-              <button
-                onClick={handleLogout}
-                className="text-sm bg-red-50 text-red-500 px-4 py-1.5 rounded-lg hover:bg-red-100 transition"
-              >
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-600 hover:bg-red-50">
                 Logout
-              </button>
+              </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <Link
-                to="/login"
-                className="text-sm text-gray-600 hover:text-orange-500 transition"
-              >
+            <div className="ml-2 flex items-center gap-2 border-l border-stone-200 pl-4">
+              <Link to="/login" className={isActive('/login')}>
                 Login
               </Link>
-
-              <Link
-                to="/register"
-                className="text-sm bg-orange-500 text-white px-4 py-1.5 rounded-lg hover:bg-orange-600 transition"
-              >
-                Register
+              <Link to="/register">
+                <Button size="sm">Get started</Button>
               </Link>
             </div>
           )}
-        </div>
+        </nav>
 
-        {/* Mobile Right Side */}
-        <div className="flex md:hidden items-center gap-3">
+        <div className="flex items-center gap-2 md:hidden">
           {token && <NotificationBell />}
-          
           <button
+            type="button"
             onClick={() => setMenuOpen(!menuOpen)}
-            className="text-gray-600 text-2xl"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50"
+            aria-expanded={menuOpen}
+            aria-label="Menu"
           >
-            {menuOpen ? '✕' : '☰'}
+            {menuOpen ? (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3">
-          <Link to="/" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">
-            🏠 Home
-          </Link>
-
-          <Link to="/menu" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">
-            🍽️ Menu
-          </Link>
-
-          <Link to="/queue" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">
-            ⏳ Queue
-          </Link>
-
-          <Link to="/reservation" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">
-            📅 Reserve
-          </Link>
-
-          {token ? (
-            <>
-              <Link to="/orders" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">
-                📋 Orders
+        <div className="animate-fade-in border-t border-stone-200/80 bg-white/95 px-4 py-4 backdrop-blur-xl md:hidden">
+          <nav className="flex flex-col gap-1">
+            {navItems.map((item) => (
+              <Link key={item.to} to={item.to} onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-stone-50">
+                {item.label}
               </Link>
-
-              <Link to="/profile" onClick={() => setMenuOpen(false)} className="block text-sm text-gray-600 py-2">
-                👤 Profile
-              </Link>
-
-              {user?.role === 'admin' && (
-                <Link to="/admin" onClick={() => setMenuOpen(false)} className="block text-sm text-purple-600 py-2">
-                  🛠️ Admin
+            ))}
+            {token ? (
+              <>
+                <Link to="/orders" onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-stone-50">Orders</Link>
+                <Link to="/cart" onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-stone-50">
+                  Cart {getCount() > 0 && `(${getCount()})`}
                 </Link>
-              )}
-
-              {(user?.role === 'staff' || user?.role === 'admin') && (
-                <>
-                  <Link
-                    to="/staff"
-                    onClick={() => setMenuOpen(false)}
-                    className="block text-sm text-blue-600 py-2"
-                  >
-                    👨‍🍳 Staff
-                  </Link>
-
-                  <Link
-                    to="/kitchen"
-                    onClick={() => setMenuOpen(false)}
-                    className="block text-sm text-green-600 py-2"
-                  >
-                    🍳 Kitchen
-                  </Link>
-                </>
-              )}
-
-              <button
-                onClick={() => {
-                  handleLogout()
-                  setMenuOpen(false)
-                }}
-                className="block w-full text-left text-sm text-red-500 py-2"
-              >
-                🚪 Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={() => setMenuOpen(false)}
-                className="block text-sm text-gray-600 py-2"
-              >
-                Login
-              </Link>
-
-              <Link
-                to="/register"
-                onClick={() => setMenuOpen(false)}
-                className="block text-sm bg-orange-500 text-white px-4 py-2 rounded-lg text-center"
-              >
-                Register
-              </Link>
-            </>
-          )}
+                <Link to="/profile" onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-stone-50">Profile</Link>
+                {user?.role === 'admin' && (
+                  <Link to="/admin" onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-violet-600 hover:bg-violet-50">Admin</Link>
+                )}
+                {(user?.role === 'staff' || user?.role === 'admin') && (
+                  <>
+                    <Link to="/staff" onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50">Staff</Link>
+                    <Link to="/kitchen" onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-emerald-600 hover:bg-emerald-50">Kitchen</Link>
+                  </>
+                )}
+                <button type="button" onClick={() => { handleLogout(); closeMobile() }} className="rounded-xl px-4 py-3 text-left text-sm font-medium text-red-600 hover:bg-red-50">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={closeMobile} className="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-stone-50">Login</Link>
+                <Link to="/register" onClick={closeMobile} className="mt-2 block">
+                  <Button className="w-full">Get started</Button>
+                </Link>
+              </>
+            )}
+          </nav>
         </div>
       )}
-    </nav>
+    </header>
   )
 }
 

@@ -6,6 +6,9 @@ import useCartStore from '../store/cartStore'
 import useAuthStore from '../store/authStore'
 import Toast from '../components/Toast'
 import Spinner from '../components/Spinner'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
+import EmptyState from '../components/ui/EmptyState'
 
 const Menu = () => {
   const navigate = useNavigate()
@@ -58,59 +61,53 @@ const Menu = () => {
       return
     }
     addItem(item)
-    setToast({ message: `${item.name} added to cart! 🛒`, type: 'success' })
+    setToast({ message: `${item.name} added to cart`, type: 'success' })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {/* Header */}
-      <div className="bg-white shadow-sm py-6 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+      <div className="border-b border-stone-200/80 bg-white/80 px-4 py-8 backdrop-blur-xl sm:px-6">
+        <div className="page-container">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Our Menu</h1>
-              <p className="text-gray-500 text-sm">Fresh food made with love</p>
+              <h1 className="section-title">Our Menu</h1>
+              <p className="section-subtitle">Fresh food made with love</p>
             </div>
             {getCount() > 0 && (
-              <button
-                onClick={() => token ? navigate('/cart') : navigate('/login')}
-                className="bg-orange-500 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-orange-600 transition"
-              >
-                🛒 Cart ({getCount()})
-              </button>
+              <Button size="sm" onClick={() => (token ? navigate('/cart') : navigate('/login'))}>
+                Cart ({getCount()})
+              </Button>
             )}
           </div>
 
-          {/* Search */}
-          <input
-            type="text"
-            placeholder="Search menu..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 mb-4"
-          />
+          <div className="relative mb-5">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">🔍</span>
+            <input
+              type="search"
+              placeholder="Search dishes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="input-field pl-11"
+              aria-label="Search menu"
+            />
+          </div>
 
-          {/* Category Filter */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => setSelectedCategory('')}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${selectedCategory === ''
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+              className={`chip ${selectedCategory === '' ? 'chip-active' : 'chip-inactive'}`}
             >
               All
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
+                type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${selectedCategory === cat.id
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                className={`chip ${selectedCategory === cat.id ? 'chip-active' : 'chip-inactive'}`}
               >
                 {cat.name}
               </button>
@@ -119,55 +116,50 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* Menu Items */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        {loading ? (
-          <Spinner />
-        ) : items.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <div className="text-5xl mb-4">🍽️</div>
-            <p className="text-lg font-medium">No items found</p>
-            <p className="text-sm mt-1">Try a different search or category</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {items.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition">
-
-                {/* Image */}
-                <div className="h-40 overflow-hidden bg-orange-50">
-                  {getMenuImageUrl(item) ? (
-                    <img
-                      src={getMenuImageUrl(item)}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.target.style.display = 'none' }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-5xl">
-                      🍽️
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-semibold text-gray-800">{item.name}</h3>
-                    <span className="text-orange-500 font-bold text-sm">${item.price}</span>
+      <div className="page-shell pt-8">
+        <div className="page-container">
+          {loading ? (
+            <Spinner label="Loading menu..." />
+          ) : items.length === 0 ? (
+            <EmptyState
+              icon="🍽️"
+              title="No items found"
+              description="Try a different search or category"
+              actionLabel="View all"
+              onAction={() => { setSearch(''); setSelectedCategory('') }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {items.map((item, i) => (
+                <Card key={item.id} hover className={`animate-slide-up overflow-hidden stagger-${(i % 4) + 1}`}>
+                  <div className="relative h-44 overflow-hidden bg-gradient-to-br from-orange-50 to-stone-100">
+                    {getMenuImageUrl(item) ? (
+                      <img
+                        src={getMenuImageUrl(item)}
+                        alt={item.name}
+                        className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                        onError={(e) => { e.target.style.display = 'none' }}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-5xl opacity-60">🍽️</div>
+                    )}
+                    <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-sm font-bold text-orange-600 shadow-sm backdrop-blur-sm">
+                      ${item.price}
+                    </span>
                   </div>
-                  <p className="text-gray-500 text-xs mb-1">{item.description}</p>
-                  <p className="text-gray-400 text-xs mb-4">⏱ {item.prep_time_mins} mins</p>
-                  <button
-                    onClick={() => handleAddToCart(item)}
-                    className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 rounded-xl transition"
-                  >
-                    {token ? 'Add to Cart' : 'Login to Order'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                  <div className="p-5">
+                    <h3 className="font-semibold text-stone-900">{item.name}</h3>
+                    <p className="mt-1 line-clamp-2 text-xs text-stone-500">{item.description}</p>
+                    <p className="mt-2 text-xs text-stone-400">⏱ {item.prep_time_mins} min prep</p>
+                    <Button className="mt-4 w-full" size="sm" onClick={() => handleAddToCart(item)}>
+                      {token ? 'Add to Cart' : 'Sign in to Order'}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

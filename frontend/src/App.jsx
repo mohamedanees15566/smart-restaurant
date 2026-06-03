@@ -17,12 +17,14 @@ import Profile from './pages/Profile'
 import Payment from './pages/Payment'
 import Reservation from './pages/Reservation'
 import KitchenDisplay from './pages/KitchenDisplay'
+import CustomerHelp from './components/CustomerHelp'
 
 function App() {
   return (
     <BrowserRouter>
+      <CustomerHelp />
       <Navbar />
-      <div className="pb-16 md:pb-0">
+      <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
@@ -85,10 +87,12 @@ function App() {
 
           {/* 404 */}
           <Route path="*" element={
-            <div className="min-h-screen flex items-center justify-center text-gray-500">
-              <div className="text-center">
-                <div className="text-6xl mb-4">404</div>
-                <p>Page not found</p>
+            <div className="page-shell flex min-h-[60vh] items-center justify-center">
+              <div className="animate-scale-in text-center">
+                <p className="text-8xl font-bold tracking-tighter text-stone-200">404</p>
+                <h1 className="mt-4 text-xl font-semibold text-stone-800">Page not found</h1>
+                <p className="mt-2 text-sm text-stone-500">The page you&apos;re looking for doesn&apos;t exist.</p>
+                <a href="/" className="btn-primary mt-8 inline-flex">Back to Home</a>
               </div>
             </div>
           } />

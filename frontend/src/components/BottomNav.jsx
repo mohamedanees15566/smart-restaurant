@@ -2,56 +2,51 @@ import { Link, useLocation } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import useCartStore from '../store/cartStore'
 
+const tabs = [
+  { to: '/', label: 'Home', icon: '🏠' },
+  { to: '/menu', label: 'Menu', icon: '🍽' },
+  { to: '/cart', label: 'Cart', icon: '🛒', badge: true },
+  { to: '/queue', label: 'Queue', icon: '⏳' },
+  { to: '/orders', label: 'Orders', icon: '📋' },
+  { to: '/profile', label: 'Profile', icon: '👤' },
+]
+
 const BottomNav = () => {
-  const { token, user } = useAuthStore()
+  const { token } = useAuthStore()
   const { getCount } = useCartStore()
   const location = useLocation()
 
   if (!token) return null
 
-  const isActive = (path) => location.pathname === path
-    ? 'text-orange-500'
-    : 'text-gray-400'
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 md:hidden">
-      <div className="flex items-center justify-around py-2">
-        <Link to="/" className={`flex flex-col items-center gap-0.5 ${isActive('/')}`}>
-          <span className="text-xl">🏠</span>
-          <span className="text-xs font-medium">Home</span>
-        </Link>
-
-        <Link to="/menu" className={`flex flex-col items-center gap-0.5 ${isActive('/menu')}`}>
-          <span className="text-xl">🍽️</span>
-          <span className="text-xs font-medium">Menu</span>
-        </Link>
-
-        <Link to="/cart" className={`flex flex-col items-center gap-0.5 relative ${isActive('/cart')}`}>
-          <span className="text-xl">🛒</span>
-          {getCount() > 0 && (
-            <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-              {getCount()}
-            </span>
-          )}
-          <span className="text-xs font-medium">Cart</span>
-        </Link>
-
-        <Link to="/queue" className={`flex flex-col items-center gap-0.5 ${isActive('/queue')}`}>
-          <span className="text-xl">⏳</span>
-          <span className="text-xs font-medium">Queue</span>
-        </Link>
-
-        <Link to="/orders" className={`flex flex-col items-center gap-0.5 ${isActive('/orders')}`}>
-          <span className="text-xl">📋</span>
-          <span className="text-xs font-medium">Orders</span>
-        </Link>
-
-        <Link to="/profile" className={`flex flex-col items-center gap-0.5 ${isActive('/profile')}`}>
-          <span className="text-xl">👤</span>
-          <span className="text-xs font-medium">Profile</span>
-        </Link>
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-stone-200/80 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+      aria-label="Mobile navigation"
+    >
+      <div className="flex items-stretch justify-around px-1 py-2">
+        {tabs.map((tab) => {
+          const active = location.pathname === tab.to
+          return (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              className={`relative flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 transition-all duration-200 ${active ? 'text-orange-600' : 'text-stone-500'}`}
+            >
+              <span className={`relative text-xl transition-transform ${active ? 'scale-110' : ''}`}>
+                {tab.icon}
+                {tab.badge && getCount() > 0 && (
+                  <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-bold text-white shadow-sm">
+                    {getCount()}
+                  </span>
+                )}
+              </span>
+              <span className={`text-[10px] font-semibold ${active ? 'text-orange-600' : ''}`}>{tab.label}</span>
+              {active && <span className="absolute bottom-0 h-0.5 w-6 rounded-full bg-orange-500" />}
+            </Link>
+          )
+        })}
       </div>
-    </div>
+    </nav>
   )
 }
 

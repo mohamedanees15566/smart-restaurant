@@ -105,26 +105,26 @@ const Reservation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
+    <div className="page-shell">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Table Reservation 📅</h1>
-        <p className="text-gray-400 text-sm mb-8">Book a table in advance for your visit</p>
+      <div className="page-container-narrow max-w-2xl">
+        <h1 className="section-title">Table Reservation</h1>
+        <p className="section-subtitle mb-8">Book a table in advance for your visit</p>
 
         {/* Step Indicator */}
         <div className="flex items-center gap-3 mb-8">
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                step >= s ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-400'
+                step >= s ? 'bg-stone-900 text-white shadow-md' : 'bg-stone-200 text-stone-500'
               }`}>
                 {s}
               </div>
-              {s < 3 && <div className={`h-1 w-12 rounded ${step > s ? 'bg-orange-500' : 'bg-gray-200'}`} />}
+              {s < 3 && <div className={`h-1 w-12 rounded ${step > s ? 'bg-orange-500' : 'bg-stone-200'}`} />}
             </div>
           ))}
-          <div className="flex gap-8 ml-2 text-xs text-gray-400">
+          <div className="flex gap-8 ml-2 text-xs text-stone-400">
             <span className={step >= 1 ? 'text-orange-500 font-medium' : ''}>Search</span>
             <span className={step >= 2 ? 'text-orange-500 font-medium' : ''}>Select</span>
             <span className={step >= 3 ? 'text-orange-500 font-medium' : ''}>Done</span>
@@ -133,7 +133,7 @@ const Reservation = () => {
 
         {/* Step 1 — Search */}
         {step === 1 && (
-          <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+          <div className="card p-6 mb-6">
             <h2 className="font-semibold text-gray-700 mb-4">When would you like to visit?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
@@ -184,7 +184,7 @@ const Reservation = () => {
         {/* Step 2 — Select Table */}
         {step === 2 && (
           <div className="mb-6">
-            <div className="bg-white rounded-2xl shadow-sm p-6 mb-4">
+            <div className="card p-6 mb-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-gray-700">
                   Available Tables ({availableTables.length})
@@ -225,7 +225,7 @@ const Reservation = () => {
             </div>
 
             {availableTables.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="card p-6">
                 <label className="text-xs text-gray-500 block mb-1">Special Notes (optional)</label>
                 <textarea
                   value={form.notes}
@@ -248,7 +248,7 @@ const Reservation = () => {
 
         {/* Step 3 — Success */}
         {step === 3 && (
-          <div className="bg-white rounded-2xl shadow-sm p-8 text-center mb-6">
+          <div className="card p-8 text-center mb-6">
             <div className="text-6xl mb-4">🎉</div>
             <h2 className="text-xl font-bold text-gray-800 mb-2">Reservation Created!</h2>
             <p className="text-gray-400 text-sm mb-6">
@@ -266,7 +266,7 @@ const Reservation = () => {
 
         {/* My Reservations */}
         {token && myReservations.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-sm p-6">
+          <div className="card p-6">
             <h2 className="font-semibold text-gray-700 mb-4">My Reservations</h2>
             <div className="space-y-3">
               {myReservations.map((r) => (

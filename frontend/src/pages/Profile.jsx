@@ -2,15 +2,22 @@ import { useState } from 'react'
 import useAuthStore from '../store/authStore'
 import api from '../services/api'
 import Toast from '../components/Toast'
+import Card from '../components/ui/Card'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
+import PageHeader from '../components/ui/PageHeader'
+
+const roleBadge = {
+  admin: 'bg-violet-100 text-violet-700 ring-violet-600/10',
+  staff: 'bg-blue-100 text-blue-700 ring-blue-600/10',
+  customer: 'bg-emerald-100 text-emerald-700 ring-emerald-600/10',
+}
 
 const Profile = () => {
   const { user, setAuth, token } = useAuthStore()
   const [form, setForm] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
-    current_password: '',
-    new_password: '',
-    new_password_confirmation: '',
   })
   const [toast, setToast] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -18,10 +25,7 @@ const Profile = () => {
   const handleUpdate = async () => {
     setLoading(true)
     try {
-      const res = await api.patch('/profile', {
-        name: form.name,
-        phone: form.phone,
-      })
+      const res = await api.patch('/profile', { name: form.name, phone: form.phone })
       setAuth(res.data.user, token)
       setToast({ message: 'Profile updated!', type: 'success' })
     } catch (err) {
@@ -32,79 +36,52 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
+    <div className="page-shell">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="max-w-lg mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">My Profile 👤</h1>
+      <div className="page-container-narrow max-w-lg">
+        <PageHeader title="My Profile" subtitle="Manage your account settings" />
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-2xl font-bold text-orange-500">
+        <Card className="mb-6 p-6">
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-2xl font-bold text-white shadow-lg shadow-orange-500/25">
               {user?.name?.charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="font-bold text-gray-800">{user?.name}</p>
-              <p className="text-sm text-gray-400">{user?.email}</p>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                user?.role === 'admin' ? 'bg-purple-100 text-purple-600' :
-                user?.role === 'staff' ? 'bg-blue-100 text-blue-600' :
-                'bg-green-100 text-green-600'
-              }`}>
+              <p className="font-bold text-stone-900">{user?.name}</p>
+              <p className="text-sm text-stone-500">{user?.email}</p>
+              <span className={`badge mt-2 ring-1 ${roleBadge[user?.role] || roleBadge.customer}`}>
                 {user?.role}
               </span>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">Full Name</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">Phone</label>
-              <input
-                type="text"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+94 77 123 4567"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-            </div>
-            <button
-              onClick={handleUpdate}
-              disabled={loading}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 rounded-xl transition text-sm"
-            >
+            <Input label="Full Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <Input label="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+94 77 123 4567" />
+            <Button onClick={handleUpdate} disabled={loading} className="w-full">
               {loading ? 'Saving...' : 'Save Changes'}
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
 
-        {/* Account Info */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h2 className="font-semibold text-gray-700 mb-4">Account Info</h2>
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Email</span>
-              <span className="text-gray-700">{user?.email}</span>
+        <Card className="p-6">
+          <h2 className="mb-4 font-semibold text-stone-800">Account info</h2>
+          <dl className="space-y-3 text-sm">
+            <div className="flex justify-between border-b border-stone-50 pb-3">
+              <dt className="text-stone-500">Email</dt>
+              <dd className="font-medium text-stone-800">{user?.email}</dd>
+            </div>
+            <div className="flex justify-between border-b border-stone-50 pb-3">
+              <dt className="text-stone-500">Role</dt>
+              <dd className="font-medium capitalize text-stone-800">{user?.role}</dd>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400">Role</span>
-              <span className="text-gray-700 capitalize">{user?.role}</span>
+              <dt className="text-stone-500">Status</dt>
+              <dd className="font-semibold text-emerald-600">Active</dd>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Status</span>
-              <span className="text-green-500 font-medium">Active</span>
-            </div>
-          </div>
-        </div>
+          </dl>
+        </Card>
       </div>
     </div>
   )

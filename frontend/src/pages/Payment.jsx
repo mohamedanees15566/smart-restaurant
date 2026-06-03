@@ -1,15 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
-import {
-  Elements,
-  CardElement,
-  useStripe,
-  useElements
-} from '@stripe/react-stripe-js'
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import api from '../services/api'
 import Spinner from '../components/Spinner'
 import Toast from '../components/Toast'
+import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
+import PageHeader from '../components/ui/PageHeader'
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY)
 
@@ -28,26 +26,21 @@ const CheckoutForm = ({ orderId, amount, onSuccess }) => {
     setError('')
 
     try {
-      // Create payment intent
       const res = await api.post('/payment/intent', { order_id: orderId })
       const { client_secret } = res.data
 
-      // Confirm payment
       const result = await stripe.confirmCardPayment(client_secret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-        },
+        payment_method: { card: elements.getElement(CardElement) },
       })
 
       if (result.error) {
         setError(result.error.message)
       } else if (result.paymentIntent.status === 'succeeded') {
-        // Confirm on backend
         await api.post('/payment/confirm', {
           order_id: orderId,
           payment_intent_id: result.paymentIntent.id,
         })
-        setToast({ message: 'Payment successful! 🎉', type: 'success' })
+        setToast({ message: 'Payment successful!', type: 'success' })
         setTimeout(() => onSuccess(), 1500)
       }
     } catch (err) {
@@ -62,39 +55,35 @@ const CheckoutForm = ({ orderId, amount, onSuccess }) => {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <form onSubmit={handleSubmit}>
-        <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 mb-4">
+        <div className="mb-4 rounded-xl border border-stone-200 bg-stone-50/80 px-4 py-4 transition focus-within:border-orange-300 focus-within:ring-4 focus-within:ring-orange-500/10">
           <CardElement
             options={{
               style: {
                 base: {
                   fontSize: '16px',
-                  color: '#1a1a1a',
-                  '::placeholder': { color: '#aaa' },
+                  color: '#1c1917',
+                  fontFamily: '"Plus Jakarta Sans", sans-serif',
+                  '::placeholder': { color: '#a8a29e' },
                 },
-                invalid: { color: '#ef4444' },
+                invalid: { color: '#dc2626' },
               },
             }}
           />
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-500 text-sm px-4 py-3 rounded-xl mb-4">
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
             {error}
           </div>
         )}
 
-        {/* Test card hint */}
-        <div className="bg-blue-50 text-blue-600 text-xs px-4 py-3 rounded-xl mb-4">
-          🧪 Test card: <strong>4242 4242 4242 4242</strong> — Any future date — Any CVC
+        <div className="mb-4 rounded-xl border border-blue-200/80 bg-blue-50/80 px-4 py-3 text-xs text-blue-800">
+          Test card: <strong>4242 4242 4242 4242</strong> — any future date — any CVC
         </div>
 
-        <button
-          type="submit"
-          disabled={loading || !stripe}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl transition text-sm disabled:opacity-50"
-        >
+        <Button type="submit" disabled={loading || !stripe} className="w-full">
           {loading ? 'Processing...' : `Pay $${parseFloat(amount).toFixed(2)}`}
-        </button>
+        </Button>
       </form>
     </div>
   )
@@ -121,49 +110,42 @@ const Payment = () => {
     }
   }
 
-  if (loading) return <Spinner />
+  if (loading) return <div className="page-shell"><Spinner /></div>
 
   if (order?.paid_at) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm w-full">
-          <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Already Paid!</h2>
-          <p className="text-gray-400 text-sm mb-6">This order has already been paid.</p>
-          <button
-            onClick={() => navigate(`/orders/${id}`)}
-            className="bg-orange-500 text-white px-6 py-2.5 rounded-full font-semibold hover:bg-orange-600 transition text-sm"
-          >
-            View Order
-          </button>
-        </div>
+      <div className="page-shell flex min-h-[60vh] items-center justify-center">
+        <Card className="animate-scale-in max-w-sm p-10 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-3xl">✓</div>
+          <h2 className="text-xl font-bold text-stone-900">Already paid</h2>
+          <p className="mt-2 text-sm text-stone-500">This order has already been paid.</p>
+          <Button className="mt-6" onClick={() => navigate(`/orders/${id}`)}>View Order</Button>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
-      <div className="max-w-md mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Payment 💳</h1>
+    <div className="page-shell">
+      <div className="page-container-narrow max-w-md">
+        <PageHeader title="Payment" subtitle="Secure checkout powered by Stripe" />
 
-        {/* Order Summary */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <h2 className="font-semibold text-gray-700 mb-4">Order Summary</h2>
+        <Card className="mb-6 p-6">
+          <h2 className="mb-4 font-semibold text-stone-800">Order summary</h2>
           {order?.items?.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm py-2 border-b border-gray-50 last:border-0">
-              <span className="text-gray-600">{item.menu_item?.name} x{item.quantity}</span>
-              <span className="text-gray-700 font-medium">${(item.unit_price * item.quantity).toFixed(2)}</span>
+            <div key={item.id} className="flex justify-between border-b border-stone-50 py-2.5 text-sm last:border-0">
+              <span className="text-stone-600">{item.menu_item?.name} × {item.quantity}</span>
+              <span className="font-medium text-stone-800">${(item.unit_price * item.quantity).toFixed(2)}</span>
             </div>
           ))}
-          <div className="flex justify-between mt-4 pt-3 border-t border-gray-100">
-            <span className="font-bold text-gray-800">Total</span>
-            <span className="font-bold text-orange-500 text-lg">${parseFloat(order?.total_amount).toFixed(2)}</span>
+          <div className="mt-4 flex justify-between border-t border-stone-100 pt-4">
+            <span className="font-bold text-stone-800">Total</span>
+            <span className="text-xl font-bold text-orange-600">${parseFloat(order?.total_amount).toFixed(2)}</span>
           </div>
-        </div>
+        </Card>
 
-        {/* Payment Form */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h2 className="font-semibold text-gray-700 mb-4">Card Details</h2>
+        <Card className="p-6">
+          <h2 className="mb-4 font-semibold text-stone-800">Card details</h2>
           <Elements stripe={stripePromise}>
             <CheckoutForm
               orderId={parseInt(id)}
@@ -171,7 +153,7 @@ const Payment = () => {
               onSuccess={() => navigate(`/orders/${id}`)}
             />
           </Elements>
-        </div>
+        </Card>
       </div>
     </div>
   )

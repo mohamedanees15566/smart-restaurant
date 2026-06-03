@@ -14,7 +14,6 @@ const NotificationBell = () => {
     fetchNotifications()
     fetchUnread()
 
-    // Close dropdown on outside click
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
@@ -55,26 +54,25 @@ const NotificationBell = () => {
   return (
     <div className="relative" ref={ref}>
       <button
+        type="button"
         onClick={() => setOpen(!open)}
-        className="relative text-gray-600 hover:text-orange-500 transition"
+        className="relative flex h-9 w-9 items-center justify-center rounded-xl text-stone-600 transition hover:bg-stone-100 hover:text-stone-900"
+        aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}
       >
         🔔
         {unread > 0 && (
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
             {unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-8 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="font-semibold text-gray-700 text-sm">Notifications</span>
+        <div className="animate-scale-in absolute right-0 top-11 z-50 w-80 overflow-hidden rounded-2xl border border-stone-200/80 bg-white/95 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-stone-100 px-4 py-3">
+            <span className="text-sm font-semibold text-stone-800">Notifications</span>
             {unread > 0 && (
-              <button
-                onClick={handleMarkAllRead}
-                className="text-xs text-orange-500 hover:underline"
-              >
+              <button type="button" onClick={handleMarkAllRead} className="text-xs font-semibold text-orange-600 hover:underline">
                 Mark all read
               </button>
             )}
@@ -82,22 +80,16 @@ const NotificationBell = () => {
 
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="text-center py-8 text-gray-400 text-sm">
-                No notifications yet
-              </div>
+              <p className="py-10 text-center text-sm text-stone-400">No notifications yet</p>
             ) : (
               notifications.map((n) => (
                 <div
                   key={n.id}
-                  className={`px-4 py-3 border-b border-gray-50 last:border-0 ${
-                    !n.read_at ? 'bg-orange-50' : ''
-                  }`}
+                  className={`border-b border-stone-50 px-4 py-3 last:border-0 ${!n.read_at ? 'bg-orange-50/60' : ''}`}
                 >
-                  <p className="text-sm font-medium text-gray-700">{n.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{n.message}</p>
-                  <p className="text-xs text-gray-300 mt-1">
-                    {new Date(n.created_at).toLocaleString()}
-                  </p>
+                  <p className="text-sm font-medium text-stone-800">{n.title}</p>
+                  <p className="mt-0.5 text-xs text-stone-500">{n.message}</p>
+                  <p className="mt-1 text-[10px] text-stone-400">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
               ))
             )}

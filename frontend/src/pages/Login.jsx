@@ -3,6 +3,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import api from '../services/api'
 import useAuthStore from '../store/authStore'
 import Toast from '../components/Toast'
+import Card from '../components/ui/Card'
+import Input from '../components/ui/Input'
+import Button from '../components/ui/Button'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -13,11 +16,11 @@ const Login = () => {
   const [toast, setToast] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  // Redirect back to where user came from after login
   const from = location.state?.from || '/'
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
+    setError('')
   }
 
   const handleSubmit = async (e) => {
@@ -42,62 +45,57 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="page-shell flex min-h-[calc(100dvh-4rem)] items-center justify-center">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome back</h2>
-        <p className="text-gray-500 text-sm mb-6">Login to continue your order</p>
+      <Card className="animate-scale-in w-full max-w-md p-8 sm:p-10">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 text-2xl text-white shadow-lg shadow-orange-500/25">
+            🍽
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-stone-900">Welcome back</h2>
+          <p className="mt-1 text-sm text-stone-500">Sign in to continue your order</p>
+        </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
+          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              placeholder="you@example.com"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              placeholder="••••••••"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 rounded-lg transition duration-200 text-sm"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            placeholder="••••••••"
+            autoComplete="current-password"
+          />
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? 'Signing in...' : 'Sign in'}
+          </Button>
         </form>
 
-        <p className="text-sm text-center text-gray-500 mt-6">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-orange-500 font-medium hover:underline">
-            Register
+        <p className="mt-8 text-center text-sm text-stone-500">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="font-semibold text-orange-600 hover:text-orange-700 hover:underline">
+            Create one
           </Link>
         </p>
-      </div>
+      </Card>
     </div>
   )
 }

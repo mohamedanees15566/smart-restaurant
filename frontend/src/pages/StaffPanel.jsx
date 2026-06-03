@@ -163,7 +163,7 @@ const StaffPanel = () => {
   if (loading) return <Spinner />
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       {/* Header */}
@@ -204,7 +204,7 @@ const StaffPanel = () => {
                 <p>No active orders right now</p>
               </div>
             ) : orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-2xl shadow-sm p-5">
+              <div key={order.id} className="card p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <span className="font-bold text-gray-800">Order #{order.id}</span>
@@ -300,7 +300,7 @@ const StaffPanel = () => {
                 {queue.map((entry) => (
                   <div
                     key={entry.id}
-                    className={`bg-white rounded-2xl shadow-sm p-4 flex items-center justify-between ${
+                    className={`card p-4 flex items-center justify-between ${
                       entry.status === 'called' ? 'border-2 border-green-400' : ''
                     }`}
                   >
@@ -348,7 +348,7 @@ const StaffPanel = () => {
                 <p>No reservations yet</p>
               </div>
             ) : reservations.map((r) => (
-              <div key={r.id} className="bg-white rounded-2xl shadow-sm p-5">
+              <div key={r.id} className="card p-5">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="font-semibold text-gray-800">{r.user?.name}</p>

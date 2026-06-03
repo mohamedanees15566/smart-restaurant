@@ -169,25 +169,26 @@ const AdminPanel = () => {
   const tabs = ['dashboard', 'menu', 'tables', 'users', 'reviews']
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       {/* Header */}
-      <div className="bg-white shadow-sm py-4 px-6">
-        <h1 className="text-xl font-bold text-gray-800">Admin Panel 🛠️</h1>
+      <div className="glass-nav px-6 py-4">
+        <h1 className="text-xl font-bold tracking-tight text-stone-900">Admin Panel</h1>
+        <p className="text-sm text-stone-500">Manage your restaurant</p>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-gray-100 px-6 overflow-x-auto">
-        <div className="flex gap-6 min-w-max">
+      <div className="border-b border-stone-200/80 bg-white/60 px-6 backdrop-blur-sm overflow-x-auto">
+        <div className="flex min-w-max gap-1">
           {tabs.map((tab) => (
             <button
               key={tab}
+              type="button"
               onClick={() => setActiveTab(tab)}
-              className={`py-3 text-sm font-medium capitalize border-b-2 transition ${
+              className={`rounded-t-xl px-4 py-3 text-sm font-semibold capitalize transition ${
                 activeTab === tab
-                  ? 'border-orange-500 text-orange-500'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-b-2 border-orange-500 bg-orange-50/50 text-orange-600'
+                  : 'text-stone-500 hover:bg-stone-50 hover:text-stone-800'
               }`}
             >
               {tab === 'dashboard' && '📊 Dashboard'}
@@ -217,7 +218,7 @@ const AdminPanel = () => {
                 { label: 'Total Customers', value: stats?.total_users, icon: '👤', color: 'text-gray-600' },
                 { label: 'Menu Items', value: stats?.total_menu_items, icon: '🍽️', color: 'text-orange-600' },
               ].map((s, i) => (
-                <div key={i} className="bg-white rounded-2xl shadow-sm p-4">
+                <div key={i} className="stat-card">
                   <div className="text-2xl mb-1">{s.icon}</div>
                   <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
                   <div className="text-xs text-gray-400 mt-1">{s.label}</div>
@@ -226,7 +227,7 @@ const AdminPanel = () => {
             </div>
 
             {/* Revenue Chart */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div className="card p-6 mb-6">
               <h2 className="font-semibold text-gray-700 mb-4">Revenue Last 7 Days</h2>
               {revenue.length === 0 ? (
                 <div className="text-center py-8 text-gray-400 text-sm">No data yet — place some orders first!</div>
@@ -245,7 +246,7 @@ const AdminPanel = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Top Items */}
-              <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="card p-6">
                 <h2 className="font-semibold text-gray-700 mb-4">Top Selling Items</h2>
                 {topItems.length === 0 ? (
                   <div className="text-center py-8 text-gray-400 text-sm">No data yet</div>
@@ -263,7 +264,7 @@ const AdminPanel = () => {
               </div>
 
               {/* Order Status Pie */}
-              <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="card p-6">
                 <h2 className="font-semibold text-gray-700 mb-4">Orders by Status</h2>
                 {orderStats.length === 0 ? (
                   <div className="text-center py-8 text-gray-400 text-sm">No data yet</div>
@@ -296,7 +297,7 @@ const AdminPanel = () => {
         {activeTab === 'menu' && (
           <div>
             {/* Add/Edit Form */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div className="card p-6 mb-6">
               <h2 className="font-semibold text-gray-700 mb-4">
                 {editingItem ? `Edit: ${editingItem.name}` : 'Add New Menu Item'}
               </h2>
@@ -404,7 +405,7 @@ const AdminPanel = () => {
             </div>
 
             {/* Menu Items List */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-500 text-xs">
                   <tr>
@@ -468,7 +469,7 @@ const AdminPanel = () => {
         {activeTab === 'tables' && (
           <div>
             {/* Add Table Form */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div className="card p-6 mb-6">
               <h2 className="font-semibold text-gray-700 mb-4">Add New Table</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -513,7 +514,7 @@ const AdminPanel = () => {
             </div>
 
             {/* Tables List */}
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-500 text-xs">
                   <tr>
@@ -560,7 +561,7 @@ const AdminPanel = () => {
 
         {/* USERS TAB */}
         {activeTab === 'users' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="card overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-gray-500 text-xs">
                 <tr>
@@ -615,7 +616,7 @@ const AdminPanel = () => {
 
         {/* REVIEWS TAB */}
         {activeTab === 'reviews' && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="card overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100">
               <h2 className="font-semibold text-gray-700">Customer Reviews ⭐</h2>
             </div>

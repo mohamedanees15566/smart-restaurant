@@ -83,7 +83,7 @@ const QueuePage = () => {
   if (loading) return <Spinner />
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
+    <div className="min-h-screen px-4 py-8">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <div className="max-w-2xl mx-auto">
@@ -112,7 +112,7 @@ const QueuePage = () => {
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+          <div className="card p-6 mb-6">
             <h2 className="font-semibold text-gray-700 mb-4">Join the Queue</h2>
             <div className="mb-4">
               <label className="text-sm text-gray-600 block mb-2">Party Size</label>
@@ -144,7 +144,7 @@ const QueuePage = () => {
         )}
 
         {/* Queue List */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="card p-6">
           <h2 className="font-semibold text-gray-700 mb-4">
             Current Queue ({queue.length} waiting)
           </h2>

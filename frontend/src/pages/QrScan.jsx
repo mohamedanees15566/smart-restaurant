@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import Spinner from '../components/Spinner'
+import Card from '../components/ui/Card'
 
 const QrScan = () => {
   const { tableNumber } = useParams()
@@ -15,9 +16,7 @@ const QrScan = () => {
       try {
         const res = await api.get(`/table/${tableNumber}/scan`)
         setTable(res.data)
-        // Store table in session
         localStorage.setItem('selected_table', JSON.stringify(res.data))
-        // Redirect to menu after 2 seconds
         setTimeout(() => navigate('/menu'), 2000)
       } catch (err) {
         setError('Table not found or inactive.')
@@ -26,31 +25,28 @@ const QrScan = () => {
       }
     }
     scanTable()
-  }, [tableNumber])
+  }, [tableNumber, navigate])
 
-  if (loading) return <Spinner />
+  if (loading) return <div className="page-shell flex min-h-[60vh] items-center justify-center"><Spinner label="Scanning table..." /></div>
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-sm w-full">
+    <div className="page-shell flex min-h-[60vh] items-center justify-center">
+      <Card className="animate-scale-in max-w-sm p-10 text-center">
         {error ? (
           <>
-            <div className="text-5xl mb-4">❌</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Table Not Found</h2>
-            <p className="text-gray-400 text-sm">{error}</p>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 text-3xl">✕</div>
+            <h2 className="text-xl font-bold text-stone-900">Table not found</h2>
+            <p className="mt-2 text-sm text-stone-500">{error}</p>
           </>
         ) : (
           <>
-            <div className="text-5xl mb-4">✅</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              Table {table?.table_number}
-            </h2>
-            <p className="text-gray-400 text-sm mb-1">📍 {table?.location}</p>
-            <p className="text-gray-400 text-sm mb-4">👥 Capacity: {table?.capacity}</p>
-            <p className="text-orange-500 text-sm font-medium">Redirecting to menu...</p>
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-3xl">✓</div>
+            <h2 className="text-xl font-bold text-stone-900">Table {table?.table_number}</h2>
+            <p className="mt-2 text-sm text-stone-500">{table?.location} · {table?.capacity} seats</p>
+            <p className="mt-6 text-sm font-semibold text-orange-600 animate-pulse">Redirecting to menu...</p>
           </>
         )}
-      </div>
+      </Card>
     </div>
   )
 }
